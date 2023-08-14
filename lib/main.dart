@@ -24,7 +24,7 @@ void main() async {
   await Firebase.initializeApp(options: firebaseOptions);
 
   runApp(MaterialApp(
-      title: 'Flashcast - Learn with us noww!',
+      title: 'Flashcast - Learn with us now!',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Color(0xFFFFFFFF),
