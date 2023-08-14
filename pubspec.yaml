@@ -1,0 +1,46 @@
+name: quiz
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.15.0
+  cupertino_icons: ^1.0.2
+  text_to_speech: ^0.2.3
+  speech_to_text: ^5.1.1
+  firebase_auth: ^4.7.2
+  cloud_firestore: ^4.8.4
+  shimmer: ^2.0.0
+  soundpool: ^2.2.0
+  audioplayers: ^0.20.1
+  flutter_tts: ^3.6.3
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/login.png
+    - assets/logo.png
+    - assets/wave.png
+    - assets/sound.wav
+   
+  fonts:
+    - family: Eudoxus Sans
+      fonts:
+        - asset: fonts/EudoxusSans-Medium.ttf
+        - asset: fonts/EudoxusSans-Bold.ttf
+          weight: 500
+        - asset: fonts/EudoxusSans-ExtraBold.ttf
+          weight: 700
