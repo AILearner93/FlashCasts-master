@@ -144,6 +144,8 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     flutterTts.setPitch(1.0);
     flutterTts.setSpeechRate(1);
     getMainSubject();
+    getSubject();
+    print("yes");
     initSpeech();
   }
 
@@ -206,7 +208,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   void sayQuestion(String question) async {
     num length = question.trim().length * .095;
     int delay = length.round();
-
     tts.setLanguage('en-US');
     tts.speak(question);
 
@@ -257,45 +258,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       setState(() {});
 
       sayQuestion(questions[currentQuestion].question);
-    }
-  }
-
-  void sayQuestion2(String question) async {
-    AudioCache player = new AudioCache();
-    const alarmAudioPath = "sound.wav";
-    player.play(alarmAudioPath);
-    lastWords = '';
-    listening = false;
-    setState(() {});
-    listenAnswer();
-    stt.stop();
-    if (lastWords.trim().isEmpty) {
-      questions[currentQuestion].status = 0;
-    } else {
-      if (lastWords.trim().toLowerCase() ==
-          questions[currentQuestion].answer.toLowerCase()) {
-        questions[currentQuestion].status = 1;
-      } else {
-        questions[currentQuestion].status = 2;
-      }
-    }
-    print("yes");
-    if (questions.last.question == question) {
-      Navigator.of(context).pushReplacement(CupertinoPageRoute(
-          builder: (context) => Result(
-              questions: questions,
-              selectedMainSubject: selectedMainSubject!,
-              selectedLevel: selectedLevel!,
-              selectedSubject: selectedSubject!)));
-    } else {
-      lastWords = '';
-      duration = 5;
-      listening = true;
-      currentQuestion++;
-      setState(() {});
-
-      sayQuestion(questions[currentQuestion].question);
-      print("current tag");
     }
   }
 
@@ -814,9 +776,8 @@ class Header extends StatelessWidget {
         Spacer(),
         InkWell(
           onTap: () async {
-            await FirebaseAuth.instance.signOut();
             Navigator.of(context).pushReplacement(
-                CupertinoPageRoute(builder: (context) => Landing()));
+                CupertinoPageRoute(builder: (context) => Quiz()));
           },
           child: Container(
             padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
