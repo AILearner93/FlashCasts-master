@@ -16,6 +16,7 @@ import 'package:soundpool/soundpool.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:math';
 import 'dart:io';
+import 'dart:async';
 
 double jaroWinklerDistance(String s1, String s2) {
   final double threshold = 0.49;
@@ -130,6 +131,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   TextToSpeech tts = TextToSpeech();
   SpeechToText stt = SpeechToText();
   late FlutterTts flutterTts;
+//define the completed as a member variable
+  Completer<void> _ttsCompleter = Completer<void>();
+
   @override
   void reassemble() {
     // TODO: implement reassemble
@@ -146,6 +150,12 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     getMainSubject();
     getSubject();
     print("yes");
+
+    flutterTts.setCompletionHandler(() {
+      print("TTS Finished Speaking");
+      _ttsCompleter.complete();
+    });
+
     initSpeech();
   }
 
@@ -170,8 +180,14 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     });
 
     flutterTts.setCompletionHandler(() {
+      if (!_ttsCompleter.isCompleted) {
+        // If not, we complete it here to let any awaiting tasks continue.
+        _ttsCompleter.complete();
+      }
       setState(() {
+        // Print to console for debugging purposes.
         print("Complete");
+        // Update the state of the Text-to-Speech to stopped.
         ttsState = TtsState.stopped;
       });
     });
@@ -206,12 +222,12 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   }
 
   void sayQuestion(String question) async {
-    num length = question.trim().length * .095;
-    int delay = length.round();
-    tts.setLanguage('en-US');
-    tts.speak(question);
+    _ttsCompleter = Completer<void>();
 
-    await Future.delayed(Duration(seconds: delay));
+    ///this buttom
+    await flutterTts.speak(question);
+    await _ttsCompleter.future;
+    //await Future.delayed(Duration(seconds: delay));
 
     AudioCache player = new AudioCache();
     const alarmAudioPath = "sound.wav";
