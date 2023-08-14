@@ -227,7 +227,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     ///this buttom
     await flutterTts.speak(question);
     await _ttsCompleter.future;
-    //await Future.delayed(Duration(seconds: delay));
 
     AudioCache player = new AudioCache();
     const alarmAudioPath = "sound.wav";
