@@ -93,6 +93,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    questions = [];
     super.initState();
     flutterTts = FlutterTts();
     flutterTts.setLanguage("en-US");
@@ -104,7 +105,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       print("TTS Finished Speaking");
       _ttsCompleter.complete();
     });
-
+    selectedMainSubject = null;
+    selectedSubject = null;
+    selectedLevel = null;
     initSpeech();
   }
 
