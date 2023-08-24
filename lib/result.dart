@@ -32,7 +32,7 @@ class _ResultState extends State<Result> {
 
   speakResult() async {
     num length =
-        'You have got ${widget.questions.where((element) => element.status == 1).length} out of ${widget.questions.length}. Would you like to restart?'
+        'You have got ${widget.questions.where((element) => element.status == QuizStatus.correct).length} out of ${widget.questions.length}. Would you like to restart?'
                 .trim()
                 .length *
             .075;
@@ -40,7 +40,7 @@ class _ResultState extends State<Result> {
 
     tts.setLanguage('en-US');
     tts.speak(
-        'You have got ${widget.questions.where((element) => element.status == 1).length} out of ${widget.questions.length}. Would you like to restart?');
+        'You have got ${widget.questions.where((element) => element.status == QuizStatus.correct).length} out of ${widget.questions.length}. Would you like to restart?');
 
     await Future.delayed(Duration(seconds: delay));
 
@@ -103,7 +103,7 @@ class _ResultState extends State<Result> {
             Divider(),
             SizedBox(height: MediaQuery.of(context).size.width * .025),
             Text(
-              'You have got ${widget.questions.where((element) => element.status == 1).length} out of ${widget.questions.length}. Would you like to restart?',
+              'You have got ${widget.questions.where((element) => element.status == QuizStatus.correct).length} out of ${widget.questions.length}. Would you like to restart?',
               style: TextStyle(fontSize: 20, color: Colors.black87),
             ),
             SizedBox(height: MediaQuery.of(context).size.width * .025),
