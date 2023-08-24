@@ -342,6 +342,33 @@ class Header extends StatelessWidget {
           ),
         ),
         SizedBox(width: 16),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => Quiz()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'User',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
       ],
     );
   }

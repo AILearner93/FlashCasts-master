@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz/compareWordFunc.dart';
 import 'package:quiz/landing.dart';
 import 'package:quiz/result.dart';
 import 'package:shimmer/shimmer.dart';
@@ -14,64 +15,8 @@ import 'package:text_to_speech/text_to_speech.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:soundpool/soundpool.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:math';
 import 'dart:io';
 import 'dart:async';
-
-double jaroWinklerDistance(String s1, String s2) {
-  final double threshold = 0.49;
-  int matches = 0;
-  int transpositions = 0;
-  int maxLength = max(s1.length, s2.length);
-  int prefixLength = 0;
-  while (prefixLength < min(s1.length, s2.length) &&
-      s1[prefixLength] == s2[prefixLength]) {
-    prefixLength++;
-    matches++;
-  }
-  s1 = s1.substring(matches);
-  s2 = s2.substring(matches);
-  for (int i = 0; i < s1.length; i++) {
-    for (int j = max(0, i - 2); j < min(s2.length, i + 3); j++) {
-      if (s1[i] == s2[j]) {
-        matches++;
-        if (j < i) transpositions++;
-        break;
-      }
-    }
-  }
-  double similarity = matches / maxLength;
-  return similarity > threshold
-      ? similarity + (0.1 * prefixLength * (1 - similarity))
-      : similarity;
-}
-
-List<String> trueWords = ['Tr', 'Tru'];
-List<String> falseWords = ['Fa', 'Fal'];
-
-List<Map<String, dynamic>> compareWords(List<String> words, String answer) {
-  return words
-      .map((word) => {
-            'word': word,
-            'distance': jaroWinklerDistance(word, answer),
-            'passThreshold': jaroWinklerDistance(word, answer) >= 0.5,
-          })
-      .toList();
-}
-
-String compareAnswer(
-    List<String> trueWords, List<String> falseWords, String answer) {
-  double highestValueTrue = compareWords(trueWords, answer.substring(0, 2))
-      .fold(0.0, (maxValue, r) => max(r['distance'], maxValue));
-  double highestValueFalse = compareWords(falseWords, answer.substring(0, 2))
-      .fold(0.0, (maxValue, r) => max(r['distance'], maxValue));
-
-  if (highestValueFalse > highestValueTrue && highestValueFalse > 0.3)
-    return "false";
-  if (highestValueTrue > highestValueFalse && highestValueTrue > 0.3)
-    return "true";
-  return answer;
-}
 
 List<QuizModel> questions = [];
 
@@ -149,14 +94,19 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     flutterTts.setSpeechRate(1);
     getMainSubject();
     getSubject();
-    print("yes");
-
     flutterTts.setCompletionHandler(() {
       print("TTS Finished Speaking");
       _ttsCompleter.complete();
     });
 
     initSpeech();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    duration = 5;
+    currentQuestion = 0; // Resetting the duration here
   }
 
   TtsState ttsState = TtsState.stopped;
@@ -265,6 +215,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
               selectedMainSubject: selectedMainSubject!,
               selectedLevel: selectedLevel!,
               selectedSubject: selectedSubject!)));
+      dispose();
     } else {
       lastWords = '';
       duration = 5;
@@ -321,7 +272,28 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void getMainSubject() async {
+  StreamSubscription? mainSubjectSubscription;
+
+  void getMainSubject() {
+    mainSubjectSubscription = FirebaseFirestore.instance
+        .collection('mainSubject')
+        .snapshots()
+        .listen((snapshot) {
+      mainSubjects.clear();
+      snapshot.docs.forEach((element) {
+        mainSubjects.add(Filter(element.id, element.get('title')));
+      });
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    mainSubjectSubscription?.cancel();
+    super.dispose();
+  }
+
+  void getMainSubject2() async {
     await FirebaseFirestore.instance
         .collection('mainSubject')
         .get()
