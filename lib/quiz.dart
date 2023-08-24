@@ -52,12 +52,18 @@ enum TtsState {
   continued
 } //create the possible states of TttState
 
+class QuizStatus {
+  static const notAnswered = 'NotAnswered';
+  static const correct = 'Correct';
+  static const incorrect = 'Incorrect';
+}
+
 class QuizModel {
   final String id;
   final String question;
   final String answer;
   var spokenanswer;
-  int status;
+  String status;
 
   QuizModel(
       this.id, this.question, this.answer, this.status, this.spokenanswer);
@@ -198,13 +204,15 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     stt.stop();
 
     if (lastWords.trim().isEmpty) {
-      questions[currentQuestion].status = 0;
+      questions[currentQuestion].status = QuizStatus.notAnswered;
     } else {
       if (lastWords.trim().toLowerCase() ==
           questions[currentQuestion].answer.toLowerCase()) {
-        questions[currentQuestion].status = 1;
+        questions[currentQuestion].status =
+            QuizStatus.correct; //what does this do?
       } else {
-        questions[currentQuestion].status = 2;
+        questions[currentQuestion].status =
+            QuizStatus.incorrect; //what does this do?
       }
     }
 
@@ -356,8 +364,8 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
         .get()
         .then((data) {
       data.docs.forEach((quiz) {
-        questions.add(QuizModel(
-            quiz.id, quiz.get('question'), quiz.get('answer'), 1, "empty"));
+        questions.add(QuizModel(quiz.id, quiz.get('question'),
+            quiz.get('answer'), QuizStatus.notAnswered, "empty"));
       });
     });
     listening = true;
@@ -692,21 +700,26 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
                               var item = questions[index];
-                              var color = item.status == 1
-                                  ? Theme.of(context).primaryColor
-                                  : item.status == 0
+                              var color = item.status == QuizStatus.notAnswered
+                                  ? Theme.of(context)
+                                      .primaryColor //going to this if it matches not answered
+                                  : item.status ==
+                                          QuizStatus
+                                              .notAnswered //goign to this if its else
                                       ? Colors.grey
-                                      : Colors.redAccent;
+                                      : item.status == QuizStatus.correct
+                                          ? Color.fromARGB(255, 7, 135, 3)
+                                          : Colors.redAccent;
                               return Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Row(
                                   children: [
                                     Icon(
-                                      item.status == 0
+                                      item.status == QuizStatus.notAnswered
                                           ? Icons.remove_circle
-                                          : item.status == 1
+                                          : item.status == QuizStatus.correct
                                               ? Icons.check_circle
-                                              : Icons.clear,
+                                              : Icons.cancel,
                                       size: 20,
                                       color: color,
                                     ),
@@ -777,7 +790,7 @@ class Header extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'Logorut',
+                'Reset',
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).primaryColor,

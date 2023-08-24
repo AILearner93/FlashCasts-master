@@ -135,21 +135,21 @@ class _ResultState extends State<Result> {
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
                             var item = widget.questions[index];
-                            var color = item.status == 1
-                                ? Theme.of(context).primaryColor
-                                : item.status == 0
-                                    ? Colors.grey
+                            var color = item.status == QuizStatus.notAnswered
+                                ? Colors.grey
+                                : item.status == QuizStatus.correct
+                                    ? Color.fromARGB(255, 7, 135, 3)
                                     : Colors.redAccent;
                             return Padding(
                               padding: const EdgeInsets.only(top: 8, bottom: 8),
                               child: Row(
                                 children: [
                                   Icon(
-                                    item.status == 0
+                                    item.status == QuizStatus.notAnswered
                                         ? Icons.remove_circle
-                                        : item.status == 1
+                                        : item.status == QuizStatus.correct
                                             ? Icons.check_circle
-                                            : Icons.clear,
+                                            : Icons.cancel,
                                     size: 20,
                                     color: color,
                                   ),
@@ -191,21 +191,21 @@ class _ResultState extends State<Result> {
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
                             var item = widget.questions[index];
-                            var color = item.status == 1
-                                ? Theme.of(context).primaryColor
-                                : item.status == 0
-                                    ? Colors.grey
+                            var color = item.status == QuizStatus.notAnswered
+                                ? Colors.grey
+                                : item.status == QuizStatus.correct
+                                    ? Color.fromARGB(255, 7, 135, 3)
                                     : Colors.redAccent;
                             return Padding(
                               padding: const EdgeInsets.only(top: 8, bottom: 8),
                               child: Row(
                                 children: [
                                   Icon(
-                                    item.status == 0
+                                    item.status == QuizStatus.notAnswered
                                         ? Icons.remove_circle
-                                        : item.status == 1
+                                        : item.status == QuizStatus.correct
                                             ? Icons.check_circle
-                                            : Icons.clear,
+                                            : Icons.cancel,
                                     size: 20,
                                     color: color,
                                   ),
@@ -247,21 +247,21 @@ class _ResultState extends State<Result> {
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) {
                             var item = widget.questions[index];
-                            var color = item.status == 1
-                                ? Theme.of(context).primaryColor
-                                : item.status == 0
-                                    ? Colors.grey
+                            var color = item.status == QuizStatus.notAnswered
+                                ? Colors.grey
+                                : item.status == QuizStatus.correct
+                                    ? Color.fromARGB(255, 7, 135, 3)
                                     : Colors.redAccent;
                             return Padding(
                               padding: const EdgeInsets.only(top: 8, bottom: 8),
                               child: Row(
                                 children: [
                                   Icon(
-                                    item.status == 0
+                                    item.status == QuizStatus.notAnswered
                                         ? Icons.remove_circle
-                                        : item.status == 1
+                                        : item.status == QuizStatus.correct
                                             ? Icons.check_circle
-                                            : Icons.clear,
+                                            : Icons.cancel,
                                     size: 20,
                                     color: color,
                                   ),
