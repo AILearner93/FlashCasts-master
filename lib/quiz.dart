@@ -181,6 +181,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   }
 
   void sayQuestion(String question) async {
+    print("say quest");
     _ttsCompleter = Completer<void>();
 
     ///this buttom
@@ -515,7 +516,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                         ? SizedBox()
                         : InkWell(
                             onTap: () {
-                              getQuestions();
+                              flutterTts
+                                  .stop(); //this stops the speech when it is tapped
+                              getQuestions(); //this runs getquestions function
                             },
                             child: Container(
                               height: 44,
