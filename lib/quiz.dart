@@ -790,7 +790,7 @@ class Header extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'Reset',
+                'Return',
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).primaryColor,
