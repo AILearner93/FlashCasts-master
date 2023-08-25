@@ -1,4 +1,5 @@
 import 'dart:math';
+// usesjaro winler distance for questions that have answers that are true or false?
 
 double jaroWinklerDistance(String s1, String s2) {
   final double threshold = 0.49;

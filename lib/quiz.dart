@@ -185,10 +185,13 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     _ttsCompleter = Completer<void>();
 
     ///this buttom
+    print("sound1");
     await flutterTts.speak(question);
+    print("sound2");
     await _ttsCompleter.future;
-
+    print("sound3");
     AudioCache player = new AudioCache();
+    print("sound4");
     const alarmAudioPath = "sound.wav";
     await player.play(alarmAudioPath);
 
@@ -516,8 +519,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                         ? SizedBox()
                         : InkWell(
                             onTap: () {
-                              flutterTts
-                                  .stop(); //this stops the speech when it is tapped
                               getQuestions(); //this runs getquestions function
                             },
                             child: Container(
