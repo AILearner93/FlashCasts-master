@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/quiz.dart';
+import 'package:quiz/UserProfile.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -345,7 +346,7 @@ class Header extends StatelessWidget {
         InkWell(
           onTap: () async {
             Navigator.of(context).pushReplacement(
-                CupertinoPageRoute(builder: (context) => Quiz()));
+                CupertinoPageRoute(builder: (context) => UserProfile()));
           },
           child: Container(
             padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),

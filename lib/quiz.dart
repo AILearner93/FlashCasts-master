@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz/compareWordFunc.dart';
 import 'package:quiz/landing.dart';
 import 'package:quiz/result.dart';
+import 'package:quiz/UserProfile.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -924,6 +925,33 @@ class Header extends StatelessWidget {
             child: Center(
               child: Text(
                 'Return',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => UserProfile()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'User',
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).primaryColor,
