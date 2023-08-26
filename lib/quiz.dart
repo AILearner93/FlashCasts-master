@@ -33,9 +33,11 @@ int currentQuestion = 0;
 
 bool speechEnabled = false;
 bool listening = false;
+bool showAnswerSection = false;
 
 String lastWords = '';
 String localeId = '';
+String? selectedChoice;
 //replaceAll(' ', '').
 
 class Quiz extends StatefulWidget {
@@ -182,13 +184,36 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   void sayQuestion(String question) async {
     print("say quest");
+    flutterTts.setCompletionHandler(() {
+      print("TTS Finished Speaking");
+      _ttsCompleter.complete();
+    });
     _ttsCompleter = Completer<void>();
 
     ///this buttom
     print("sound1");
-    await flutterTts.speak(question);
+    flutterTts.stop();
+    setState(() {});
+    try {
+      // Start the TTS operation
+      flutterTts.speak(question);
+
+      // Wait for its completion or for the 2-second timeout, whichever comes first
+      await Future.any(
+              [_ttsCompleter.future, Future.delayed(Duration(seconds: 10))])
+          .then((result) {
+        if (result == null) {
+          throw TimeoutException("TTS took too long!");
+        }
+      });
+    } on TimeoutException catch (e) {
+      // Handle the timeout exception here
+      print(e.message); // Example: prints "TTS took too long!"
+      // Here, you can also stop the TTS if needed
+      flutterTts.stop();
+    }
     print("sound2");
-    await _ttsCompleter.future;
+    ;
     print("sound3");
     AudioCache player = new AudioCache();
     print("sound4");
@@ -244,6 +269,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       lastWords = '';
       duration = 5;
       listening = true;
+      showAnswerSection = true;
       currentQuestion++;
       setState(() {});
 
@@ -259,11 +285,11 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     setState(() {
       lastWords = result.recognizedWords;
       String Compresult = compareAnswer(trueWords, falseWords, lastWords);
-      print("this is spat out from the comparison: $Compresult");
-      print("this is was what was interpreted $lastWords");
+      //print("this is spat out from the comparison: $Compresult");
+      //print("this is was what was interpreted $lastWords");
       lastWords = Compresult;
       questions[currentQuestion].spokenanswer = lastWords;
-      print(questions[currentQuestion].spokenanswer);
+      //print(questions[currentQuestion].spokenanswer);
     });
   }
 
@@ -330,6 +356,12 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     setState(() {});
   }
 
+  void resetForm() {
+    selectedChoice = null;
+    showAnswerSection = false;
+    setState(() {});
+  }
+
   void getLevel() async {
     levels.clear();
 
@@ -368,7 +400,8 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   void getQuestions() async {
     questions.clear();
-
+    duration = 5;
+    currentQuestion = 0;
     await FirebaseFirestore.instance
         .collection('mainSubject')
         .doc(selectedMainSubject!.id)
@@ -399,6 +432,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
           left: MediaQuery.of(context).size.width * .07,
           right: MediaQuery.of(context).size.width * .07),
       child: Column(
+        //these are the columns for the visual
         children: [
           Header(),
           SizedBox(height: 24),
@@ -426,6 +460,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                     ),
                     SizedBox(height: 16),
                     Wrap(
+                      //this the wrap for teh questions on the left in the level
                       runSpacing: 8,
                       spacing: 8,
                       children: mainSubjects.map((e) {
@@ -467,6 +502,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                     selectedMainSubject == null
                         ? SizedBox()
                         : Wrap(
+                            //this is the wrap for the subjects
                             runSpacing: 8,
                             spacing: 8,
                             children: levels.map((e) {
@@ -503,6 +539,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                     selectedLevel == null
                         ? SizedBox()
                         : Wrap(
+                            //wrap for get questiosn
                             runSpacing: 8,
                             spacing: 8,
                             children: subjects.map((e) {
@@ -527,8 +564,15 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                     selectedSubject == null
                         ? SizedBox()
                         : InkWell(
-                            onTap: () {
-                              getQuestions(); //this runs getquestions function
+                            onTap: () async {
+                              await flutterTts
+                                  .stop(); // Stop the Text-to-Speech
+                              await stt.stop();
+                              Future.delayed(Duration(seconds: 1));
+                              getQuestions();
+                              showAnswerSection =
+                                  true; //display the asnwer section
+                              setState(() {}); //this runs getquestions function
                             },
                             child: Container(
                               height: 44,
@@ -557,7 +601,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                           AnimatedContainer(
                             duration: Duration(seconds: listening ? 0 : 4),
                             width: duration == 5 ? 500.0 : 0.0,
-                            height: 4,
+                            height: 4, //thickness of bar at top
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(32),
                               color: Theme.of(context).primaryColor,
@@ -620,7 +664,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          SizedBox(height: 24),
+                          SizedBox(height: 100),
                           listening
                               ? Container()
                               : Text(
@@ -644,55 +688,128 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                           SizedBox(height: 24),
                           listening
                               ? Container()
-                              : Shimmer.fromColors(
-                                  baseColor: Colors.cyan,
-                                  highlightColor:
-                                      Theme.of(context).primaryColor,
-                                  enabled: stt.isListening,
-                                  child: Container(
-                                    width: 150,
-                                    padding: EdgeInsets.only(
-                                        left: 16,
-                                        right: 16,
-                                        top: 10,
-                                        bottom: 10),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Theme.of(context).primaryColor,
-                                        width: 2,
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Shimmer.fromColors(
+                                      baseColor: Colors.orange,
+                                      highlightColor: Colors.red,
+                                      enabled: listening,
+                                      child: Container(
+                                        //container for the speaking box
+                                        width: 150,
+                                        padding: EdgeInsets.only(
+                                            left: 16,
+                                            right: 16,
+                                            top: 10,
+                                            bottom: 10),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            width: 2,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Center(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.mic),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                stt.isListening
+                                                    ? 'Speaking...'
+                                                    : 'Speak',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Center(
-                                      child: Row(
+                                    ), //end of speaking container box
+                                    SizedBox(
+                                        height:
+                                            10), // Give some space between speaking box and the
+                                    if (showAnswerSection) // Assuming you've set up this variable as explained in previous messages
+                                      Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                            MainAxisAlignment.start,
                                         children: [
-                                          Icon(Icons.mic),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            stt.isListening
-                                                ? 'Speaking...'
-                                                : 'Speak',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                          ChoiceChip(
+                                            label: Text(
+                                              "True",
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: selectedChoice == "True"
+                                                    ? Colors.white
+                                                    : Colors
+                                                        .black, // Adjust the text color based on the selection state
+                                              ),
                                             ),
+                                            backgroundColor:
+                                                Colors.grey.withOpacity(.15),
+                                            selectedColor:
+                                                Theme.of(context).primaryColor,
+                                            selected: selectedChoice == "True",
+                                            onSelected: (bool selected) {
+                                              setState(() {
+                                                selectedChoice = "True";
+                                                lastWords = "true";
+                                                questions[currentQuestion]
+                                                    .spokenanswer = lastWords;
+                                                resetForm();
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(
+                                              width:
+                                                  20), // Spacing between the chips
+                                          ChoiceChip(
+                                            label: Text(
+                                              "False",
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: selectedChoice == "False"
+                                                    ? Colors.white
+                                                    : Colors
+                                                        .black, // Adjust the text color based on the selection state
+                                              ),
+                                            ),
+                                            backgroundColor:
+                                                Colors.grey.withOpacity(.15),
+                                            selectedColor:
+                                                Theme.of(context).primaryColor,
+                                            selected: selectedChoice == "False",
+                                            onSelected: (bool selected) {
+                                              setState(() {
+                                                selectedChoice = "False";
+                                                lastWords = "false";
+                                                questions[currentQuestion]
+                                                    .spokenanswer = lastWords;
+                                                resetForm();
+                                              });
+                                            },
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                        ],
+                                      )
+                                  ],
+                                )
+                        ], //need to keep up to here
                       ),
                     )
                   : Container(),
               SizedBox(width: 48),
-              questions.isEmpty
-                  ? Container()
+              questions.isEmpty //does this if question is empty
+                  ? Container() //this is the blank bit in the middle of the page
                   : Container(
+                      //this container is for the question list width
                       width: 250,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
@@ -760,7 +877,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                     ),
               SizedBox(width: 16),
             ],
-          )
+          ) //row of all things
         ],
       ),
     ));
