@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/quiz.dart';
+import 'package:quiz/widget/quiz_dashboard.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -17,6 +18,14 @@ class _UserProfileState extends State<UserProfile> {
   String username = "John Doe";
   String userEmail = "johndoe@example.com";
   String userBio = "Just another Flutter enthusiast!";
+
+  // Added variables
+  bool _showDashboard = false;
+  final List<CompletedQuiz> userCompletedQuizzes = [
+    CompletedQuiz(quizName: "Math Quiz", score: 85),
+    CompletedQuiz(quizName: "History Quiz", score: 78),
+    // ... add more completed quizzes here
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +79,17 @@ class _UserProfileState extends State<UserProfile> {
               },
               child: Text('Edit Profile'),
             ),
-          ],
-        ),
+            ElevatedButton(//add dashboard
+            onPressed: () {
+              setState(() {
+                _showDashboard = !_showDashboard;
+              });
+            },
+            child: Text('Toggle Dashboard'),
+          ),
+          if (_showDashboard)
+            Expanded(child: QuizDashboard(completedQuizzes: userCompletedQuizzes))
+        ],
       ),
     );
   }
@@ -98,10 +116,60 @@ class Header extends StatelessWidget {
               fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         Spacer(),
-        // Update header buttons for profile actions as needed
-        IconButton(icon: Icon(Icons.settings), onPressed: () {
-          // Settings logic
-        }),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => Quiz()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'Quiz',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => UserProfile()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'Settings',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
       ],
     );
   }
