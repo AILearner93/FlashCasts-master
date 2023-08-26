@@ -204,7 +204,18 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
     for (int i = 0; i < 5; i++) {
       await Future.delayed(Duration(seconds: 1));
-      duration--;
+
+      String trimmedLastWords = lastWords.trim().toLowerCase();
+
+      if (trimmedLastWords == questions[currentQuestion].answer.toLowerCase() ||
+          trimmedLastWords == "true" ||
+          trimmedLastWords == "false") {
+        duration = 0;
+        i = 5;
+      } else {
+        duration--;
+      }
+
       setState(() {});
     }
 
@@ -215,11 +226,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     } else {
       if (lastWords.trim().toLowerCase() ==
           questions[currentQuestion].answer.toLowerCase()) {
-        questions[currentQuestion].status =
-            QuizStatus.correct; //what does this do?
+        questions[currentQuestion].status = QuizStatus.correct;
       } else {
-        questions[currentQuestion].status =
-            QuizStatus.incorrect; //what does this do?
+        questions[currentQuestion].status = QuizStatus.incorrect;
       }
     }
 
