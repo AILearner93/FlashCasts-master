@@ -2,10 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/quiz.dart';
 import 'package:quiz/widget/quiz_dashboard.dart';
-import 'package:speech_to_text/speech_recognition_error.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:text_to_speech/text_to_speech.dart';
+import 'package:quiz/models/completed_quiz.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -13,13 +10,11 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-
   // Sample user data
   String username = "John Doe";
   String userEmail = "johndoe@example.com";
   String userBio = "Just another Flutter enthusiast!";
 
-  // Added variables
   bool _showDashboard = false;
   final List<CompletedQuiz> userCompletedQuizzes = [
     CompletedQuiz(quizName: "Math Quiz", score: 85),
@@ -31,11 +26,10 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.width * .025,
-            bottom: MediaQuery.of(context).size.width * .025,
-            left: MediaQuery.of(context).size.width * .07,
-            right: MediaQuery.of(context).size.width * .07),
+        padding: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.width * .025,
+          horizontal: MediaQuery.of(context).size.width * .07,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -47,7 +41,7 @@ class _UserProfileState extends State<UserProfile> {
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey,
-                backgroundImage: AssetImage('assets/user_image.png'),  // Placeholder image, replace with actual
+                backgroundImage: AssetImage('assets/user_image.png'),
               ),
             ),
             SizedBox(height: 20),
@@ -71,7 +65,6 @@ class _UserProfileState extends State<UserProfile> {
               userBio,
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
-            // Add other user details as required
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
@@ -79,26 +72,27 @@ class _UserProfileState extends State<UserProfile> {
               },
               child: Text('Edit Profile'),
             ),
-            ElevatedButton(//add dashboard
-            onPressed: () {
-              setState(() {
-                _showDashboard = !_showDashboard;
-              });
-            },
-            child: Text('Toggle Dashboard'),
-          ),
-          if (_showDashboard)
-            Expanded(child: QuizDashboard(completedQuizzes: userCompletedQuizzes))
-        ],
+            SizedBox(height: 20),  // <-- Added this SizedBox for spacing
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _showDashboard = !_showDashboard;
+                });
+              },
+              child: Text('Toggle Dashboard'),
+            ),
+            if (_showDashboard) ...[
+              QuizDashboard(completedQuizzes: userCompletedQuizzes)
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class Header extends StatelessWidget {
-  const Header({
-    Key? key,
-  }) : super(key: key);
+  const Header({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -112,65 +106,39 @@ class Header extends StatelessWidget {
         SizedBox(width: 24),
         Text(
           'Flashcast',
-          style: TextStyle(
-              fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         Spacer(),
         InkWell(
-          onTap: () async {
-            Navigator.of(context).pushReplacement(
-                CupertinoPageRoute(builder: (context) => Quiz()));
+          onTap: () {
+            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Quiz()));
           },
-          child: Container(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).primaryColor,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: Text(
-                'Quiz',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+          child: _navigationButton(context, 'Quiz'),
         ),
         SizedBox(width: 16),
-        InkWell(
-          onTap: () async {
-            Navigator.of(context).pushReplacement(
-                CupertinoPageRoute(builder: (context) => UserProfile()));
-          },
-          child: Container(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).primaryColor,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
+        // No need to navigate to the same UserProfile page
+        _navigationButton(context, 'User'),
         SizedBox(width: 16),
       ],
+    );
+  }
+
+  Widget _navigationButton(BuildContext context, String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).primaryColor,
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

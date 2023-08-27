@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/compareWordFunc.dart';
 import 'package:quiz/landing.dart';
+import 'package:quiz/userprofile.dart';
 import 'package:quiz/result.dart';
-import 'package:quiz/UserProfile.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -192,7 +192,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     _ttsCompleter = Completer<void>();
 
     ///this buttom
-    print("sound1");
     flutterTts.stop();
     setState(() {});
     try {
@@ -213,7 +212,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       // Here, you can also stop the TTS if needed
       flutterTts.stop();
     }
-    print("sound2");
+    print("questions");
     ;
     print("sound3");
     AudioCache player = new AudioCache();
