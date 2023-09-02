@@ -497,6 +497,8 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
       questions =
           questionsMap.values.toList(); // Convert the Map values to a List here
+      questions.shuffle();
+
       listening = true;
       setState(() {});
       sayQuestion(questions[currentQuestion].question);
@@ -906,7 +908,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                   ? Container() //this is the blank bit in the middle of the page
                   : Container(
                       //this container is for the question list width
-                      width: 250,
+                      width: 15,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.withOpacity(.25)),
