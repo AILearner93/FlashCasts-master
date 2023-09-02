@@ -35,11 +35,15 @@ int currentQuestion = 0;
 bool speechEnabled = false;
 bool listening = false;
 bool showAnswerSection = false;
+bool showColumn = true;
 
 String lastWords = '';
 String localeId = '';
 String? selectedChoice;
 //replaceAll(' ', '').
+
+String currentUserID = "testUserID123";
+String currentUserName = "testUser";
 
 class Quiz extends StatefulWidget {
   const Quiz({Key? key}) : super(key: key);
@@ -108,6 +112,8 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       print("TTS Finished Speaking");
       _ttsCompleter.complete();
     });
+    showColumn = true;
+    Set<Filter> mainSubjectsSet = {};
     selectedMainSubject = null;
     selectedSubject = null;
     selectedLevel = null;
@@ -184,7 +190,6 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   }
 
   void sayQuestion(String question) async {
-    print("say quest");
     flutterTts.setCompletionHandler(() {
       print("TTS Finished Speaking");
       _ttsCompleter.complete();
@@ -197,8 +202,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     try {
       // Start the TTS operation
       flutterTts.speak(question);
-
-      // Wait for its completion or for the 2-second timeout, whichever comes first
+      // Wait for its completion or for the 10-second timeout, whichever comes first
       await Future.any(
               [_ttsCompleter.future, Future.delayed(Duration(seconds: 10))])
           .then((result) {
@@ -258,6 +262,13 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     }
 
     if (questions.last.question == question) {
+      // Calculate the score here
+      int score = questions.where((q) => q.status == QuizStatus.correct).length;
+      int totalQuestions = questions.length;
+
+      // Store the result
+      await storeQuizResults(score, totalQuestions);
+
       Navigator.of(context).pushReplacement(CupertinoPageRoute(
           builder: (context) => Result(
               questions: questions,
@@ -324,17 +335,28 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   StreamSubscription? mainSubjectSubscription;
 
-  void getMainSubject() {
-    mainSubjectSubscription = FirebaseFirestore.instance
-        .collection('mainSubject')
-        .snapshots()
-        .listen((snapshot) {
-      mainSubjects.clear();
-      snapshot.docs.forEach((element) {
-        mainSubjects.add(Filter(element.id, element.get('title')));
-      });
-      setState(() {});
-    });
+  void getMainSubject() async {
+    Map<String, Filter> mainSubjectsMap = {}; // Declare a Map here
+
+    // Fetching from mainSubject collection
+    QuerySnapshot mainSubjectSnapshot =
+        await FirebaseFirestore.instance.collection('mainSubject').get();
+    for (var doc in mainSubjectSnapshot.docs) {
+      String title = doc.get('title');
+      mainSubjectsMap[title] = Filter(doc.id, title);
+    }
+
+    // Fetching from Europe_Quiz collection
+    QuerySnapshot europeQuizSnapshot =
+        await FirebaseFirestore.instance.collection('Europe_Quiz').get();
+    for (var doc in europeQuizSnapshot.docs) {
+      String title = doc.get('mainSubject');
+      mainSubjectsMap[title] = Filter(doc.id, title);
+    }
+
+    mainSubjects = mainSubjectsMap.values
+        .toList(); // Convert the Map values to a List here
+    setState(() {});
   }
 
   @override
@@ -343,83 +365,142 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void getMainSubject2() async {
-    await FirebaseFirestore.instance
-        .collection('mainSubject')
-        .get()
-        .then((value) {
-      value.docs.forEach((element) {
-        mainSubjects.add(Filter(element.id, element.get('title')));
-      });
-    });
-
-    setState(() {});
-  }
-
   void resetForm() {
     selectedChoice = null;
     showAnswerSection = false;
     setState(() {});
   }
 
-  void getLevel() async {
-    levels.clear();
+  Future<void> storeQuizResults(int score, int totalQuestions) async {
+    try {
+      CollectionReference userScores =
+          FirebaseFirestore.instance.collection('userScores');
 
-    await FirebaseFirestore.instance
-        .collection('mainSubject')
-        .doc(selectedMainSubject!.id)
-        .collection('level')
-        .get()
-        .then((value) {
-      value.docs.forEach((element) {
-        levels.add(Filter(element.id, element.get('title')));
+      // Assuming you have a variable called currentUserID for the logged-in user
+      DocumentReference userDocRef = userScores.doc(currentUserID);
+
+      // Check if user document exists
+      DocumentSnapshot userDocSnap = await userDocRef.get();
+
+      if (!userDocSnap.exists) {
+        // If user document doesn't exist, create one with basic user data
+        await userDocRef.set({
+          'userID': currentUserID,
+          'userName': currentUserName, // Assuming you have this variable
+        });
+      }
+
+      // Add quiz result to the quizResults sub-collection
+      await userDocRef.collection('quizResults').add({
+        'mainSubject': selectedMainSubject!.title,
+        'level': selectedLevel!.title,
+        'subject': selectedSubject!.title,
+        'score': score,
+        'totalQuestions': totalQuestions,
+        'dateTaken': Timestamp.now(),
       });
-    });
+    } catch (e) {
+      print("Error storing quiz results: $e");
+    }
+  }
 
-    setState(() {});
+  void getLevel() async {
+    Map<String, Filter> levelsMap = {}; // Declare a Map here
+
+    // Ensure that selectedMainSubject is not null before proceeding
+    if (selectedMainSubject != null) {
+      // Fetching from level sub-collection under mainSubject
+      QuerySnapshot levelSnapshot = await FirebaseFirestore.instance
+          .collection('mainSubject')
+          .doc(selectedMainSubject!.id)
+          .collection('level')
+          .get();
+      for (var doc in levelSnapshot.docs) {
+        String title = doc.get('title');
+        levelsMap[title] = Filter(doc.id, title);
+      }
+
+      // Fetching from Europe_Quiz collection
+      QuerySnapshot europeQuizSnapshot = await FirebaseFirestore.instance
+          .collection('Europe_Quiz')
+          .where('mainSubject', isEqualTo: selectedMainSubject!.title)
+          .get();
+      for (var doc in europeQuizSnapshot.docs) {
+        String title = doc.get('level');
+        levelsMap[title] = Filter(doc.id, title);
+      }
+
+      levels =
+          levelsMap.values.toList(); // Convert the Map values to a List here
+      setState(() {});
+    }
   }
 
   void getSubject() async {
-    subjects.clear();
+    Map<String, Filter> subjectsMap = {}; // Declare a Map here
 
-    await FirebaseFirestore.instance
-        .collection('mainSubject')
-        .doc(selectedMainSubject!.id)
-        .collection('level')
-        .doc(selectedLevel!.id)
-        .collection('subject')
-        .get()
-        .then((value) {
-      value.docs.forEach((element) {
-        subjects.add(Filter(element.id, element.get('title')));
-      });
-    });
+    // Ensure that selectedMainSubject and selectedLevel are not null before proceeding
+    if (selectedMainSubject != null && selectedLevel != null) {
+      // Fetching from subject sub-collection under level
+      QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
+          .collection('mainSubject')
+          .doc(selectedMainSubject!.id)
+          .collection('level')
+          .doc(selectedLevel!.id)
+          .collection('subject')
+          .get();
+      for (var doc in subjectSnapshot.docs) {
+        String title = doc.get('title');
+        subjectsMap[title] = Filter(doc.id, title);
+      }
 
-    setState(() {});
+      // Fetching from Europe_Quiz collection
+      QuerySnapshot europeQuizSnapshot = await FirebaseFirestore.instance
+          .collection('Europe_Quiz')
+          .where('mainSubject', isEqualTo: selectedMainSubject!.title)
+          .where('level', isEqualTo: selectedLevel!.title)
+          .get();
+      for (var doc in europeQuizSnapshot.docs) {
+        String title = doc.get('subject');
+        subjectsMap[title] = Filter(doc.id, title);
+      }
+
+      subjects =
+          subjectsMap.values.toList(); // Convert the Map values to a List here
+      setState(() {});
+    }
   }
 
   void getQuestions() async {
-    questions.clear();
-    duration = 5;
-    currentQuestion = 0;
-    await FirebaseFirestore.instance
-        .collection('mainSubject')
-        .doc(selectedMainSubject!.id)
-        .collection('level')
-        .doc(selectedLevel!.id)
-        .collection('subject')
-        .doc(selectedSubject!.id)
-        .collection('quiz')
-        .get()
-        .then((data) {
-      data.docs.forEach((quiz) {
-        questions.add(QuizModel(quiz.id, quiz.get('question'),
-            quiz.get('answer'), QuizStatus.notAnswered, "empty"));
-      });
-    });
-    listening = true;
-    setState(() {});
-    sayQuestion(questions[currentQuestion].question);
+    Map<String, QuizModel> questionsMap = {}; // Declare a Map here
+
+    // Ensure that selectedMainSubject, selectedLevel, and selectedSubject are not null before proceeding
+    if (selectedMainSubject != null &&
+        selectedLevel != null &&
+        selectedSubject != null) {
+      // Fetching from Europe_Quiz collection
+      QuerySnapshot europeQuizSnapshot = await FirebaseFirestore.instance
+          .collection('Europe_Quiz')
+          .where('mainSubject', isEqualTo: selectedMainSubject!.title)
+          .where('level', isEqualTo: selectedLevel!.title)
+          .where('subject',
+              isEqualTo: selectedSubject!.title) // Filter by subject
+          .get();
+      for (var doc in europeQuizSnapshot.docs) {
+        List<Map<String, dynamic>> quizData =
+            List<Map<String, dynamic>>.from(doc.get('questions'));
+        for (var q in quizData) {
+          questionsMap[q['question']] = QuizModel(doc.id, q['question'],
+              q['answer'], QuizStatus.notAnswered, "empty");
+        }
+      }
+
+      questions =
+          questionsMap.values.toList(); // Convert the Map values to a List here
+      listening = true;
+      setState(() {});
+      sayQuestion(questions[currentQuestion].question);
+    }
   }
 
   @override
@@ -432,7 +513,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
           left: MediaQuery.of(context).size.width * .07,
           right: MediaQuery.of(context).size.width * .07),
       child: Column(
-        //these are the columns for the visual
+        //these are the columns for the visual on the left with the quizes
         children: [
           Header(),
           SizedBox(height: 24),
@@ -441,157 +522,172 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 250,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.withOpacity(.25)),
-                ),
-                padding: EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Main subject',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
-                    SizedBox(height: 16),
-                    Wrap(
-                      //this the wrap for teh questions on the left in the level
-                      runSpacing: 8,
-                      spacing: 8,
-                      children: mainSubjects.map((e) {
-                        return ChoiceChip(
-                          backgroundColor: Colors.grey.withOpacity(.15),
-                          selectedColor: Theme.of(context).primaryColor,
-                          labelStyle: TextStyle(
-                            color: selectedMainSubject == e
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                          selected: selectedMainSubject == e,
-                          onSelected: (v) {
-                            selectedMainSubject = e;
-                            selectedSubject = null;
-                            selectedLevel = null;
-                            setState(() {});
-                            getLevel();
-                          },
-                          label: Text(e.title),
-                        );
-                      }).toList(),
-                    ),
-                    selectedMainSubject == null
-                        ? SizedBox()
-                        : SizedBox(height: 24),
-                    selectedMainSubject == null
-                        ? SizedBox()
-                        : Text(
-                            'Level',
+              showColumn
+                  ? Container(
+                      width: 250,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.withOpacity(.25)),
+                      ),
+                      padding: EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Main subject',
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey),
                           ),
-                    selectedMainSubject == null
-                        ? SizedBox()
-                        : SizedBox(height: 16),
-                    selectedMainSubject == null
-                        ? SizedBox()
-                        : Wrap(
-                            //this is the wrap for the subjects
+                          SizedBox(height: 16),
+                          Wrap(
+                            //this the wrap for teh questions on the left in the level
                             runSpacing: 8,
                             spacing: 8,
-                            children: levels.map((e) {
+                            children: mainSubjects.map((e) {
                               return ChoiceChip(
                                 backgroundColor: Colors.grey.withOpacity(.15),
                                 selectedColor: Theme.of(context).primaryColor,
                                 labelStyle: TextStyle(
-                                  color: selectedLevel == e
+                                  color: selectedMainSubject == e
                                       ? Colors.white
                                       : Colors.black,
                                 ),
-                                selected: selectedLevel == e,
+                                selected: selectedMainSubject == e,
                                 onSelected: (v) {
-                                  selectedLevel = e;
+                                  selectedMainSubject = e;
                                   selectedSubject = null;
+                                  selectedLevel = null;
                                   setState(() {});
-                                  getSubject();
+                                  getLevel();
                                 },
                                 label: Text(e.title),
                               );
                             }).toList(),
                           ),
-                    selectedLevel == null ? SizedBox() : SizedBox(height: 24),
-                    selectedLevel == null
-                        ? SizedBox()
-                        : Text(
-                            'Subject',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                    selectedLevel == null ? SizedBox() : SizedBox(height: 16),
-                    selectedLevel == null
-                        ? SizedBox()
-                        : Wrap(
-                            //wrap for get questiosn
-                            runSpacing: 8,
-                            spacing: 8,
-                            children: subjects.map((e) {
-                              return ChoiceChip(
-                                backgroundColor: Colors.grey.withOpacity(.15),
-                                selectedColor: Theme.of(context).primaryColor,
-                                labelStyle: TextStyle(
-                                  color: selectedSubject == e
-                                      ? Colors.white
-                                      : Colors.black,
+                          selectedMainSubject == null
+                              ? SizedBox()
+                              : SizedBox(height: 24),
+                          selectedMainSubject == null
+                              ? SizedBox()
+                              : Text(
+                                  'Level',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
                                 ),
-                                selected: selectedSubject == e,
-                                onSelected: (v) {
-                                  selectedSubject = e;
-                                  setState(() {});
-                                },
-                                label: Text(e.title),
-                              );
-                            }).toList(),
-                          ),
-                    selectedSubject == null ? SizedBox() : SizedBox(height: 24),
-                    selectedSubject == null
-                        ? SizedBox()
-                        : InkWell(
-                            onTap: () async {
-                              await flutterTts
-                                  .stop(); // Stop the Text-to-Speech
-                              await stt.stop();
-                              Future.delayed(Duration(seconds: 1));
-                              getQuestions();
-                              showAnswerSection =
-                                  true; //display the asnwer section
-                              setState(() {}); //this runs getquestions function
-                            },
-                            child: Container(
-                              height: 44,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(32),
-                                color: Theme.of(context).primaryColor,
-                              ),
-                              child: Center(
-                                child: Text('Get Questions',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                          ),
-                  ],
-                ),
-              ),
+                          selectedMainSubject == null
+                              ? SizedBox()
+                              : SizedBox(height: 16),
+                          selectedMainSubject == null
+                              ? SizedBox()
+                              : Wrap(
+                                  //this is the wrap for the subjects
+                                  runSpacing: 8,
+                                  spacing: 8,
+                                  children: levels.map((e) {
+                                    return ChoiceChip(
+                                      backgroundColor:
+                                          Colors.grey.withOpacity(.15),
+                                      selectedColor:
+                                          Theme.of(context).primaryColor,
+                                      labelStyle: TextStyle(
+                                        color: selectedLevel == e
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                      selected: selectedLevel == e,
+                                      onSelected: (v) {
+                                        selectedLevel = e;
+                                        selectedSubject = null;
+                                        setState(() {});
+                                        getSubject();
+                                      },
+                                      label: Text(e.title),
+                                    );
+                                  }).toList(),
+                                ),
+                          selectedLevel == null
+                              ? SizedBox()
+                              : SizedBox(height: 24),
+                          selectedLevel == null
+                              ? SizedBox()
+                              : Text(
+                                  'Subject',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                ),
+                          selectedLevel == null
+                              ? SizedBox()
+                              : SizedBox(height: 16),
+                          selectedLevel == null
+                              ? SizedBox()
+                              : Wrap(
+                                  //wrap for get questiosn
+                                  runSpacing: 8,
+                                  spacing: 8,
+                                  children: subjects.map((e) {
+                                    return ChoiceChip(
+                                      backgroundColor:
+                                          Colors.grey.withOpacity(.15),
+                                      selectedColor:
+                                          Theme.of(context).primaryColor,
+                                      labelStyle: TextStyle(
+                                        color: selectedSubject == e
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                      selected: selectedSubject == e,
+                                      onSelected: (v) {
+                                        selectedSubject = e;
+                                        setState(() {});
+                                      },
+                                      label: Text(e.title),
+                                    );
+                                  }).toList(),
+                                ),
+                          selectedSubject == null
+                              ? SizedBox()
+                              : SizedBox(height: 24),
+                          selectedSubject == null
+                              ? SizedBox()
+                              : InkWell(
+                                  onTap: () async {
+                                    await flutterTts
+                                        .stop(); // Stop the Text-to-Speech
+                                    await stt.stop();
+                                    Future.delayed(Duration(seconds: 1));
+                                    getQuestions();
+                                    showAnswerSection =
+                                        true; //display the asnwer section
+                                    showColumn =
+                                        false; // Hide the column when it is pressed
+                                    setState(
+                                        () {}); //this runs getquestions function
+                                  },
+                                  child: Container(
+                                    height: 44,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(32),
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    child: Center(
+                                      child: Text('Get Questions',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    )
+                  : Container(),
               SizedBox(width: 48),
               questions.isNotEmpty
                   ? Expanded(

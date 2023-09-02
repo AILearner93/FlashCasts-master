@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz/quiz.dart';
 import 'package:quiz/widget/quiz_dashboard.dart';
 import 'package:quiz/models/completed_quiz.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -14,13 +15,47 @@ class _UserProfileState extends State<UserProfile> {
   String username = "John Doe";
   String userEmail = "johndoe@example.com";
   String userBio = "Just another Flutter enthusiast!";
+  String currentUserID = "testUserID123";
+  bool _showDashboard = true;
+  List<CompletedQuiz> userCompletedQuizzes = []; // Make this a state variable
 
-  bool _showDashboard = false;
-  final List<CompletedQuiz> userCompletedQuizzes = [
-    CompletedQuiz(quizName: "Math Quiz", score: 85),
-    CompletedQuiz(quizName: "History Quiz", score: 78),
-    // ... add more completed quizzes here
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserCompletedQuizzes(); // Fetch quizzes when the widget is first loaded
+  }
+
+  Future<void> _fetchUserCompletedQuizzes() async {
+    List<CompletedQuiz> fetchedQuizzes = await fetchUserCompletedQuizzes();
+    setState(() {
+      userCompletedQuizzes = fetchedQuizzes;
+    });
+  }
+
+  Future<List<CompletedQuiz>> fetchUserCompletedQuizzes() async {
+    List<CompletedQuiz> completedQuizzes = [];
+
+    // Assuming you have a variable called currentUserID for the logged-in user
+    CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
+    DocumentReference userDocRef = userScores.doc(currentUserID);
+
+    QuerySnapshot quizResults = await userDocRef.collection('quizResults').get();
+
+    for (var doc in quizResults.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+      completedQuizzes.add(
+        CompletedQuiz(
+          quizName: "${data['mainSubject']} - ${data['subject']}",
+          score: data['score'],
+          totalQuestions: data['totalQuestions'], // Add this line
+          timestamp: (data['dateTaken'] as Timestamp).toDate(),
+        ),
+    
+      );
+    }
+
+    return completedQuizzes;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,58 +120,6 @@ class _UserProfileState extends State<UserProfile> {
               QuizDashboard(completedQuizzes: userCompletedQuizzes)
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class Header extends StatelessWidget {
-  const Header({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Image.asset(
-          'assets/logo.png',
-          width: 35,
-          height: 35,
-        ),
-        SizedBox(width: 24),
-        Text(
-          'Flashcast',
-          style: TextStyle(fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-        Spacer(),
-        InkWell(
-          onTap: () {
-            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => Quiz()));
-          },
-          child: _navigationButton(context, 'Quiz'),
-        ),
-        SizedBox(width: 16),
-        // No need to navigate to the same UserProfile page
-        _navigationButton(context, 'User'),
-        SizedBox(width: 16),
-      ],
-    );
-  }
-
-  Widget _navigationButton(BuildContext context, String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).primaryColor,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
         ),
       ),
     );
