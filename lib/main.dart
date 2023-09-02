@@ -32,6 +32,6 @@ void main() async {
         fontFamily: 'Eudoxus Sans',
         primaryColor: Color(0xFF4A7CFE),
       ),
-      home: UserProfile()));
+      home: Quiz()));
   //home: FirebaseAuth.instance.currentUser == null ? Landing() : Quiz()));
 }
