@@ -18,7 +18,7 @@ class _UserProfileState extends State<UserProfile> {
   final String currentUserID = "testUserID123";
   bool _showDashboard = false;
 
-Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
+ Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
   CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
   DocumentReference userDocRef = userScores.doc(currentUserID);
 
@@ -41,6 +41,12 @@ Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
   });
 }
 
+// Define a method to refresh the quiz scores
+void refreshQuizScores() {
+  setState(() {
+    // Toggle _showDashboard to force reloading the StreamBuilder
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,6 +100,7 @@ Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                refreshQuizScores();
                 setState(() {
                   _showDashboard = !_showDashboard;
                 });
