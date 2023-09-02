@@ -12,6 +12,7 @@ class QuizDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     List<CompletedQuiz> latestQuizzes =
         completedQuizzes.reversed.take(5).toList().reversed.toList();
+    latestQuizzes.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     double textSize = MediaQuery.of(context).size.height * 0.02;
     double radiusSize = MediaQuery.of(context).size.height * 0.03;
     String decimalToPercentage(double decimalValue) {
