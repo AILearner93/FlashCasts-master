@@ -12,7 +12,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   // Sample user data
-  final String username = "John Doe";
+  final String username = "John Does";
   final String userEmail = "johndoe@example.com";
   final String userBio = "Just another Flutter enthusiast!";
   final String currentUserID = "testUserID123";
