@@ -12,50 +12,34 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   // Sample user data
-  String username = "John Doe";
-  String userEmail = "johndoe@example.com";
-  String userBio = "Just another Flutter enthusiast!";
-  String currentUserID = "testUserID123";
-  bool _showDashboard = true;
-  List<CompletedQuiz> userCompletedQuizzes = []; // Make this a state variable
+  final String username = "John Doe";
+  final String userEmail = "johndoe@example.com";
+  final String userBio = "Just another Flutter enthusiast!";
+  final String currentUserID = "testUserID123";
+  bool _showDashboard = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserCompletedQuizzes(); // Fetch quizzes when the widget is first loaded
-  }
+Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
+  CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
+  DocumentReference userDocRef = userScores.doc(currentUserID);
 
-  Future<void> _fetchUserCompletedQuizzes() async {
-    List<CompletedQuiz> fetchedQuizzes = await fetchUserCompletedQuizzes();
-    setState(() {
-      userCompletedQuizzes = fetchedQuizzes;
-    });
-  }
-
-  Future<List<CompletedQuiz>> fetchUserCompletedQuizzes() async {
-    List<CompletedQuiz> completedQuizzes = [];
-
-    // Assuming you have a variable called currentUserID for the logged-in user
-    CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
-    DocumentReference userDocRef = userScores.doc(currentUserID);
-
-    QuerySnapshot quizResults = await userDocRef.collection('quizResults').get();
-
-    for (var doc in quizResults.docs) {
-      var data = doc.data() as Map<String, dynamic>;
-      completedQuizzes.add(
-        CompletedQuiz(
-          quizName: "${data['mainSubject']} - ${data['subject']}",
-          score: data['score'],
-          totalQuestions: data['totalQuestions'], // Add this line
-          timestamp: (data['dateTaken'] as Timestamp).toDate(),
-        ),
-    
-      );
+  return userDocRef.collection('quizResults').snapshots().map((snapshot) {
+    // Printing all documents data
+    for (var doc in snapshot.docs) {
+      print(doc.data());
     }
+    print("Total quizzes: ${snapshot.docs.length}");
 
-    return completedQuizzes;
-  }
+    return snapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+      return CompletedQuiz(
+        quizName: "${data['mainSubject']} - ${data['subject']}",
+        score: data['score'],
+        totalQuestions: data['totalQuestions'],
+        timestamp: (data['dateTaken'] as Timestamp).toDate(),
+      );
+    }).toList();
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +52,7 @@ class _UserProfileState extends State<UserProfile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Header(),
+            Header(), // Ensure you have this widget defined or imported
             SizedBox(height: 24),
             Divider(),
             SizedBox(height: MediaQuery.of(context).size.width * .025),
@@ -107,7 +91,7 @@ class _UserProfileState extends State<UserProfile> {
               },
               child: Text('Edit Profile'),
             ),
-            SizedBox(height: 20),  // <-- Added this SizedBox for spacing
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -116,9 +100,22 @@ class _UserProfileState extends State<UserProfile> {
               },
               child: Text('See Scores (last 5 quizzes)'),
             ),
-            if (_showDashboard) ...[
-              QuizDashboard(completedQuizzes: userCompletedQuizzes)
-            ],
+            if (_showDashboard) 
+              StreamBuilder<List<CompletedQuiz>>(
+                stream: fetchUserCompletedQuizzesStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text("An error occurred: ${snapshot.error}");
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text("No quizzes completed yet.");
+                  }
+                  return QuizDashboard(completedQuizzes: snapshot.data!);
+                },
+              ),
           ],
         ),
       ),
