@@ -5,6 +5,7 @@ import 'package:quiz/quiz.dart';
 import 'package:cloud_firestore_web/cloud_firestore_web.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:quiz/userprofile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,6 @@ void main() async {
         fontFamily: 'Eudoxus Sans',
         primaryColor: Color(0xFF4A7CFE),
       ),
-      home: Quiz()));
+      home: UserProfile()));
   //home: FirebaseAuth.instance.currentUser == null ? Landing() : Quiz()));
 }

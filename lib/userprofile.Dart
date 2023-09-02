@@ -76,7 +76,7 @@ class _UserProfileState extends State<UserProfile> {
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey,
-                backgroundImage: AssetImage('assets/user_image.png'),
+                backgroundImage: AssetImage('/user_image.png'),
               ),
             ),
             SizedBox(height: 20),
@@ -100,7 +100,7 @@ class _UserProfileState extends State<UserProfile> {
               userBio,
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 60),
             ElevatedButton(
               onPressed: () {
                 // Edit profile logic
@@ -114,7 +114,7 @@ class _UserProfileState extends State<UserProfile> {
                   _showDashboard = !_showDashboard;
                 });
               },
-              child: Text('Toggle Dashboard'),
+              child: Text('See Scores (last 5 quizzes)'),
             ),
             if (_showDashboard) ...[
               QuizDashboard(completedQuizzes: userCompletedQuizzes)
