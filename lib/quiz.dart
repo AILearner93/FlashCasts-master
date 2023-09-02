@@ -690,7 +690,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                       ),
                     )
                   : Container(),
-              SizedBox(width: 48),
+              SizedBox(width: 30),
               questions.isNotEmpty
                   ? Expanded(
                       child: Column(
@@ -908,7 +908,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                   ? Container() //this is the blank bit in the middle of the page
                   : Container(
                       //this container is for the question list width
-                      width: 15,
+                      width: MediaQuery.of(context).size.width * .3,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.withOpacity(.25)),
@@ -973,7 +973,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-              SizedBox(width: 16),
+              SizedBox(width: 30),
             ],
           ) //row of all things
         ],
