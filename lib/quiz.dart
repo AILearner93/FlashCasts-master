@@ -18,6 +18,7 @@ import 'package:soundpool/soundpool.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
 import 'dart:async';
+import 'package:quiz/widget/custom_header.dart';
 
 List<QuizModel> questions = [];
 
@@ -522,7 +523,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
           Divider(),
           SizedBox(height: MediaQuery.of(context).size.width * .025),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               showColumn
                   ? Container(
@@ -908,14 +909,14 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                   ? Container() //this is the blank bit in the middle of the page
                   : Container(
                       //this container is for the question list width
-                      width: MediaQuery.of(context).size.width * .3,
+                      width: MediaQuery.of(context).size.width * .1,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.withOpacity(.25)),
                       ),
                       padding: EdgeInsets.all(24),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
                             'Question list',
@@ -923,6 +924,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey),
+                            textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 16),
                           ListView.builder(
@@ -944,6 +946,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
                                       item.status == QuizStatus.notAnswered
@@ -957,7 +960,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                     SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
-                                        item.question,
+                                        (index + 1).toString(),
                                         maxLines: 1,
                                         style: TextStyle(
                                           fontSize: 14,
