@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:cloud_firestore_web/cloud_firestore_web.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
 import 'dart:async';
 import 'package:quiz/widget/custom_header.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 List<QuizModel> questions = [];
 
@@ -84,7 +86,7 @@ class Filter {
   Filter(this.id, this.title);
 }
 
-AudioPlayer audioPlayer = AudioPlayer();
+AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
 
 class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   TextToSpeech tts = TextToSpeech();
