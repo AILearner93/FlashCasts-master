@@ -734,7 +734,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                             highlightColor: Colors.red,
                             enabled: listening,
                             child: Container(
-                              width: 150,
+                              width: 200,
                               padding: EdgeInsets.only(
                                   left: 16, right: 16, top: 10, bottom: 10),
                               decoration: BoxDecoration(
@@ -750,12 +750,20 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                   children: [
                                     Icon(Icons.volume_down_rounded),
                                     SizedBox(width: 8),
-                                    Text(
-                                      listening ? 'Listening...' : 'Listen',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).primaryColor,
-                                        fontWeight: FontWeight.bold,
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 1,
+                                          vertical:
+                                              1), // Adjust as needed // Optional: if you want to visualize the box
+                                      child: Text(
+                                        listening
+                                            ? 'Reading Question'
+                                            : 'Question Read',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -796,7 +804,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                       enabled: listening,
                                       child: Container(
                                         //container for the speaking box
-                                        width: 150,
+                                        width: 200,
                                         padding: EdgeInsets.only(
                                             left: 16,
                                             right: 16,
