@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quiz/models/completed_quiz.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class QuizDashboard extends StatelessWidget {
@@ -10,11 +9,12 @@ class QuizDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<CompletedQuiz> latestQuizzes =
-        completedQuizzes.reversed.take(5).toList().reversed.toList();
-    latestQuizzes.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    completedQuizzes.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    List<CompletedQuiz> latestQuizzes = completedQuizzes.take(5).toList();
+
     double textSize = MediaQuery.of(context).size.height * 0.02;
     double radiusSize = MediaQuery.of(context).size.height * 0.03;
+
     String decimalToPercentage(double decimalValue) {
       double percentageValue = decimalValue * 100;
       return percentageValue.toStringAsFixed(1) + '%';

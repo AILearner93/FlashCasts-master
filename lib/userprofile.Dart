@@ -1,9 +1,90 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz/quiz.dart';
 import 'package:quiz/widget/quiz_dashboard.dart';
 import 'package:quiz/models/completed_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quiz/quiz.dart';
+
+class Header extends StatelessWidget {
+  const Header({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Image.asset(
+          'assets/logo.png',
+          width: 35,
+          height: 35,
+        ),
+        SizedBox(width: 23),
+        Text(
+          'Flashcast',
+          style: TextStyle(
+              fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        Spacer(),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => Quiz()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'Quiz',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        InkWell(
+          onTap: () async {
+            Navigator.of(context).pushReplacement(
+                CupertinoPageRoute(builder: (context) => UserProfile()));
+          },
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                'User',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+      ],
+    );
+  }
+}
+
 
 class UserProfile extends StatefulWidget {
   @override
@@ -11,42 +92,29 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  // Sample user data
   final String username = "John Does";
   final String userEmail = "johndoe@example.com";
   final String userBio = "Just another Flutter enthusiast!";
   final String currentUserID = "testUserID123";
   bool _showDashboard = false;
 
- Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
-  CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
-  DocumentReference userDocRef = userScores.doc(currentUserID);
+  Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
+    CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
+    DocumentReference userDocRef = userScores.doc(currentUserID);
 
-  return userDocRef.collection('quizResults').snapshots().map((snapshot) {
-    // Printing all documents data
-    for (var doc in snapshot.docs) {
-      print(doc.data());
-    }
-    print("Total quizzes: ${snapshot.docs.length}");
+    return userDocRef.collection('quizResults').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        var data = doc.data() as Map<String, dynamic>;
+        return CompletedQuiz(
+          quizName: "${data['mainSubject']} - ${data['subject']}",
+          score: data['score'],
+          totalQuestions: data['totalQuestions'],
+          timestamp: (data['dateTaken'] as Timestamp).toDate(),
+        );
+      }).toList();
+    });
+  }
 
-    return snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      return CompletedQuiz(
-        quizName: "${data['mainSubject']} - ${data['subject']}",
-        score: data['score'],
-        totalQuestions: data['totalQuestions'],
-        timestamp: (data['dateTaken'] as Timestamp).toDate(),
-      );
-    }).toList();
-  });
-}
-
-// Define a method to refresh the quiz scores
-void refreshQuizScores() {
-  setState(() {
-    // Toggle _showDashboard to force reloading the StreamBuilder
-  });
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,15 +126,13 @@ void refreshQuizScores() {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Header(), // Ensure you have this widget defined or imported
+            Header(), // Adding the Header widget here
             SizedBox(height: 24),
-            Divider(),
-            SizedBox(height: MediaQuery.of(context).size.width * .025),
             Center(
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey,
-                backgroundImage: AssetImage('/user_image.png'),
+                backgroundImage: AssetImage('assets/user_image.png'),
               ),
             ),
             SizedBox(height: 20),
@@ -100,24 +166,24 @@ void refreshQuizScores() {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                refreshQuizScores();
                 setState(() {
                   _showDashboard = !_showDashboard;
                 });
               },
-              child: Text('See Scores (last 5 quizzes)'),
+              child: Text('Toggle Scores View'),
             ),
-            if (_showDashboard) 
+            if (_showDashboard)
               StreamBuilder<List<CompletedQuiz>>(
                 stream: fetchUserCompletedQuizzesStream(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text("An error occurred: ${snapshot.error}");
-                  }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  if (snapshot.hasError) {
+                    return Text("An error occurred: ${snapshot.error}");
+                  }
+                  bool dataIsEmpty = snapshot.data == null || snapshot.data!.isEmpty;
+                  if (dataIsEmpty) {
                     return Text("No quizzes completed yet.");
                   }
                   return QuizDashboard(completedQuizzes: snapshot.data!);
