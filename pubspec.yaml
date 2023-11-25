@@ -25,6 +25,12 @@ dependencies:
   audio_service: ^0.18.11
   http_server: ^1.0.0
   webview_flutter: ^4.2.4
+  flutter_screenutil: ^5.9.0
+#  get: ^4.6.6
+  google_fonts: any
+  circular_profile_avatar: ^2.0.5
+  responsive_framework: ^1.1.1
+  responsive_builder: ^0.7.0
 
 
 dev_dependencies:

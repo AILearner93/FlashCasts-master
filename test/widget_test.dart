@@ -42,9 +42,9 @@ void main() {
   String compareAnswer(
       List<String> trueWords, List<String> falseWords, String answer) {
     double highestValueTrue = compareWords(trueWords, answer.substring(0, 2))
-        .fold(0.0, (max, r) => max(r['distance'], max));
+        .fold(0.0, (max, r) => max);
     double highestValueFalse = compareWords(falseWords, answer.substring(0, 2))
-        .fold(0.0, (max, r) => max(r['distance'], max));
+        .fold(0.0, (max, r) => max);
 
     if (highestValueFalse > highestValueTrue && highestValueFalse > 0.3)
       return "false";
