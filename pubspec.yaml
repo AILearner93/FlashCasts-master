@@ -31,6 +31,7 @@ dependencies:
   circular_profile_avatar: ^2.0.5
   responsive_framework: ^1.1.1
   responsive_builder: ^0.7.0
+  image_picker: ^1.0.4
 
 
 dev_dependencies:
@@ -46,6 +47,7 @@ flutter:
     - assets/wave.png
     - assets/sound.wav
     - assets/user_image.png
+    - assets/landing_images/
    
   fonts:
     - family: Eudoxus Sans

@@ -1,37 +1,20 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:quiz/landing_page/auth/signIn_view.dart';
+
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../resources/resources.dart';
 import '../utils/sized_box.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({Key? key}) : super(key: key);
+class SignInView extends StatefulWidget {
+  const SignInView({Key? key}) : super(key: key);
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<SignInView> createState() => _SignInViewState();
 }
 
-class _SignUpState extends State<SignUp> {
-  Uint8List? image;
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      var bytes = await pickedFile.readAsBytes();
-      setState(() {
-        image = Uint8List.fromList(bytes);
-      });
-    }
-  }
-
+class _SignInViewState extends State<SignInView> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveBuilder(builder: (context, sizes) {
@@ -105,56 +88,10 @@ class _SignUpState extends State<SignUp> {
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       Text(
-                                        "Sign Up",
+                                        "Sign In",
                                         style: R.textStyles.poppins(
                                             color: R.colors.signUpTextColor,
                                             fontSize: 25),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          SizedBox(
-                                            width: 50.w,
-                                            child: TextFormField(
-                                              decoration: R.decoration
-                                                  .fieldDecoration(
-                                                      hintStyle:
-                                                          R.textStyles.poppins(
-                                                        color: R.colors
-                                                            .signUpTextColor,
-                                                        fontSize: 15,
-                                                      ),
-                                                      preIcon: Icon(
-                                                        Icons
-                                                            .account_circle_sharp,
-                                                        color:
-                                                            R.colors.iconColor,
-                                                      ),
-                                                      hintText: "first Name"),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 50.w,
-                                            child: TextFormField(
-                                              decoration: R.decoration
-                                                  .fieldDecoration(
-                                                      hintStyle:
-                                                          R.textStyles.poppins(
-                                                        color: R.colors
-                                                            .signUpTextColor,
-                                                        fontSize: 15,
-                                                      ),
-                                                      preIcon: Icon(
-                                                        Icons
-                                                            .account_circle_sharp,
-                                                        color:
-                                                            R.colors.iconColor,
-                                                      ),
-                                                      hintText: "Last Name"),
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                       TextFormField(
                                         decoration:
@@ -193,50 +130,33 @@ class _SignUpState extends State<SignUp> {
                                                     MaterialStateProperty.all(R
                                                         .colors
                                                         .singUpButtonColor)),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const SignInView()),
-                                              );
-                                            },
+                                            onPressed: () {},
                                             child: Text(
-                                              "Sign Up",
+                                              "Log In",
                                               style: R.textStyles.poppins(
                                                   color: R.colors.white,
                                                   fontSize: 5.sp),
                                             )),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.only(left: 36.w),
+                                        padding: EdgeInsets.only(left: 25.w),
                                         child: Row(
                                           children: [
                                             Text(
-                                              "Already Member?",
+                                              "Don't have an Account ?",
                                               style: R.textStyles.poppins(
                                                   color:
                                                       R.colors.signUpTextColor,
                                                   fontSize: 4.sp),
                                             ),
                                             widthBox(3),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const SignInView()),
-                                                );
-                                              },
-                                              child: Text(
-                                                "Sign In",
-                                                style: R.textStyles.poppins(
-                                                    color: R.colors
-                                                        .singUpButtonColor,
-                                                    fontSize: 4.sp),
-                                              ),
-                                            )
+                                            Text(
+                                              "Sign Up",
+                                              style: R.textStyles.poppins(
+                                                  color: R
+                                                      .colors.singUpButtonColor,
+                                                  fontSize: 4.sp),
+                                            ),
                                           ],
                                         ),
                                       )
@@ -244,21 +164,11 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    _pickImage();
-                                  },
+                                  onTap: () {},
                                   child: CircularProfileAvatar("",
                                       radius: 10.w,
-                                      child: image == null
-                                          ? Image.asset(R.images.profile)
-                                          : Image.memory(image!)),
+                                      child: Image.asset(R.images.profile)),
                                 ),
-                                // Container(
-                                //   height: 120.h,
-                                //   width: 100.w,
-                                //   decoration: const BoxDecoration(
-                                //       shape: BoxShape.circle, color: Colors.cyan),
-                                // )
                               ],
                             ))
                   ],
@@ -395,15 +305,10 @@ class _SignUpState extends State<SignUp> {
                               ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              _pickImage();
-                            },
-                            child: CircularProfileAvatar("",
-                                radius: 30.w,
-                                child: image == null
-                                    ? Image.asset(R.images.profile)
-                                    : Image.memory(image!)),
+                          CircularProfileAvatar(
+                            "",
+                            radius: 30.w,
+                            child: Image.asset(R.images.profile),
                           ),
                           // Container(
                           //   height: 120.h,
