@@ -98,7 +98,7 @@ class _OnBoardViewState extends State<OnBoardView> {
                               padding: EdgeInsets.only(top: 15.h),
                               child: Image.asset(
                                 R.images.music,
-                                height: 550.h,
+                                height: 480.h,
                               ),
                             ),
                           ),
@@ -169,20 +169,20 @@ class _OnBoardViewState extends State<OnBoardView> {
                             ),
                             heightBox(15),
                             Text(
-                              DummyData.mission,
+                              DummyData.craftedQuestions,
                               style: R.textStyles.poppins(
                                   color: R.colors.black.withOpacity(.70),
                                   fontWeight: FontWeight.normal,
                                   fontSize: isSmall ? 10.sp : 6.sp),
                             ),
                             heightBox(15),
-                            Text(
-                              DummyData.signUp,
-                              style: R.textStyles.poppins(
-                                  color: R.colors.black.withOpacity(.70),
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: isSmall ? 10.sp : 6.sp),
-                            ),
+                            // Text(
+                            //   DummyData.signUp,
+                            //   style: R.textStyles.poppins(
+                            //       color: R.colors.black.withOpacity(.70),
+                            //       fontWeight: FontWeight.normal,
+                            //       fontSize: isSmall ? 10.sp : 6.sp),
+                            // ),
                             heightBox(5),
                           ],
                         )),

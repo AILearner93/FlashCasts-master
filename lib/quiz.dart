@@ -1,12 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audio_service/audio_service.dart';
-import 'package:cloud_firestore_web/cloud_firestore_web.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/compareWordFunc.dart';
-import 'package:quiz/landing.dart';
 import 'package:quiz/userprofile.dart';
 import 'package:quiz/result.dart';
 import 'package:shimmer/shimmer.dart';
@@ -15,12 +11,7 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:text_to_speech/text_to_speech.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:soundpool/soundpool.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io';
 import 'dart:async';
-import 'package:quiz/widget/custom_header.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 List<QuizModel> questions = [];
 

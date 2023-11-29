@@ -85,7 +85,6 @@ class Header extends StatelessWidget {
   }
 }
 
-
 class UserProfile extends StatefulWidget {
   @override
   _UserProfileState createState() => _UserProfileState();
@@ -99,7 +98,8 @@ class _UserProfileState extends State<UserProfile> {
   bool _showDashboard = false;
 
   Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
-    CollectionReference userScores = FirebaseFirestore.instance.collection('userScores');
+    CollectionReference userScores =
+        FirebaseFirestore.instance.collection('userScores');
     DocumentReference userDocRef = userScores.doc(currentUserID);
 
     return userDocRef.collection('quizResults').snapshots().map((snapshot) {
@@ -139,7 +139,10 @@ class _UserProfileState extends State<UserProfile> {
             Text(
               username,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
             ),
             SizedBox(height: 10),
             Text(
@@ -150,7 +153,10 @@ class _UserProfileState extends State<UserProfile> {
             SizedBox(height: 20),
             Text(
               "Bio",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
             ),
             Text(
               userBio,
@@ -182,7 +188,8 @@ class _UserProfileState extends State<UserProfile> {
                   if (snapshot.hasError) {
                     return Text("An error occurred: ${snapshot.error}");
                   }
-                  bool dataIsEmpty = snapshot.data == null || snapshot.data!.isEmpty;
+                  bool dataIsEmpty =
+                      snapshot.data == null || snapshot.data!.isEmpty;
                   if (dataIsEmpty) {
                     return Text("No quizzes completed yet.");
                   }

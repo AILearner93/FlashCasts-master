@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:responsive_builder/responsive_builder.dart';
 
+import '../../quiz.dart';
 import '../resources/resources.dart';
 import '../utils/sized_box.dart';
 
@@ -70,106 +71,93 @@ class _SignInViewState extends State<SignInView> {
                         ? const SizedBox()
                         : Expanded(
                             flex: 1,
-                            child: Stack(
-                              alignment: Alignment.topCenter,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(top: 12.w),
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 10.w) +
-                                          EdgeInsets.only(top: 60.h),
-                                  height: isSmall ? 400.h : 450.h,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(40),
-                                    color: R.colors.white,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 12.w),
+                              padding: EdgeInsets.symmetric(horizontal: 10.w) +
+                                  EdgeInsets.only(top: 60.h),
+                              height: isSmall ? 400.h : 450.h,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(40),
+                                color: R.colors.white,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                    "Sign In",
+                                    style: R.textStyles.poppins(
+                                        color: R.colors.signUpTextColor,
+                                        fontSize: 25),
                                   ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text(
-                                        "Sign In",
-                                        style: R.textStyles.poppins(
-                                            color: R.colors.signUpTextColor,
-                                            fontSize: 25),
-                                      ),
-                                      TextFormField(
-                                        decoration:
-                                            R.decoration.fieldDecoration(
-                                                hintStyle: R.textStyles.poppins(
-                                                  color:
-                                                      R.colors.signUpTextColor,
-                                                  fontSize: 15,
-                                                ),
-                                                preIcon: Icon(
-                                                  Icons.mail,
-                                                  color: R.colors.iconColor,
-                                                ),
-                                                hintText: "Email address"),
-                                      ),
-                                      TextFormField(
-                                        decoration:
-                                            R.decoration.fieldDecoration(
-                                                hintStyle: R.textStyles.poppins(
-                                                  color:
-                                                      R.colors.signUpTextColor,
-                                                  fontSize: 15,
-                                                ),
-                                                preIcon: Icon(
-                                                  Icons.lock,
-                                                  color: R.colors.iconColor,
-                                                ),
-                                                hintText: "password"),
-                                      ),
-                                      SizedBox(
-                                        width: size.width,
-                                        height: 50.h,
-                                        child: ElevatedButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(R
-                                                        .colors
-                                                        .singUpButtonColor)),
-                                            onPressed: () {},
-                                            child: Text(
-                                              "Log In",
-                                              style: R.textStyles.poppins(
-                                                  color: R.colors.white,
-                                                  fontSize: 5.sp),
-                                            )),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 25.w),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              "Don't have an Account ?",
-                                              style: R.textStyles.poppins(
-                                                  color:
-                                                      R.colors.signUpTextColor,
-                                                  fontSize: 4.sp),
-                                            ),
-                                            widthBox(3),
-                                            Text(
-                                              "Sign Up",
-                                              style: R.textStyles.poppins(
-                                                  color: R
-                                                      .colors.singUpButtonColor,
-                                                  fontSize: 4.sp),
-                                            ),
-                                          ],
+                                  TextFormField(
+                                    decoration: R.decoration.fieldDecoration(
+                                        hintStyle: R.textStyles.poppins(
+                                          color: R.colors.signUpTextColor,
+                                          fontSize: 15,
                                         ),
-                                      )
-                                    ],
+                                        preIcon: Icon(
+                                          Icons.mail,
+                                          color: R.colors.iconColor,
+                                        ),
+                                        hintText: "Email address"),
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: CircularProfileAvatar("",
-                                      radius: 10.w,
-                                      child: Image.asset(R.images.profile)),
-                                ),
-                              ],
+                                  TextFormField(
+                                    decoration: R.decoration.fieldDecoration(
+                                        hintStyle: R.textStyles.poppins(
+                                          color: R.colors.signUpTextColor,
+                                          fontSize: 15,
+                                        ),
+                                        preIcon: Icon(
+                                          Icons.lock,
+                                          color: R.colors.iconColor,
+                                        ),
+                                        hintText: "password"),
+                                  ),
+                                  SizedBox(
+                                    width: size.width,
+                                    height: 50.h,
+                                    child: ElevatedButton(
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(R
+                                                    .colors.singUpButtonColor)),
+                                        onPressed: () {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (builder) {
+                                            return Quiz();
+                                          }));
+                                        },
+                                        child: Text(
+                                          "Log In",
+                                          style: R.textStyles.poppins(
+                                              color: R.colors.white,
+                                              fontSize: 5.sp),
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 25.w),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Don't have an Account ?",
+                                          style: R.textStyles.poppins(
+                                              color: R.colors.signUpTextColor,
+                                              fontSize: 4.sp),
+                                        ),
+                                        widthBox(3),
+                                        Text(
+                                          "Sign Up",
+                                          style: R.textStyles.poppins(
+                                              color: R.colors.singUpButtonColor,
+                                              fontSize: 4.sp),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
                             ))
                   ],
                 ),
