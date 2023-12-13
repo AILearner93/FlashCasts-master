@@ -32,6 +32,10 @@ dependencies:
   responsive_framework: ^1.1.1
   responsive_builder: ^0.7.0
   image_picker: ^1.0.4
+  fluttertoast: any
+  flutter_spinkit: any
+  get: any
+  firebase_storage: any
 
 
 dev_dependencies:

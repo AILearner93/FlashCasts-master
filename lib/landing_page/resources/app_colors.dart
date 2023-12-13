@@ -12,4 +12,5 @@ class AppColors {
   Color red = Colors.red;
   Color black = Colors.black;
   Color white = Colors.white;
+  Color grey = Colors.grey;
 }

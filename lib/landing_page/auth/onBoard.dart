@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quiz/landing_page/auth/singn_up.dart';
-
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../resources/dummy.dart';

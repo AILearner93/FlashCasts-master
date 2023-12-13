@@ -4,6 +4,9 @@ import 'package:quiz/widget/quiz_dashboard.dart';
 import 'package:quiz/models/completed_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quiz/quiz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'constant/user_data.dart';
+import 'landing_page/auth/onBoard.dart';
 
 class Header extends StatelessWidget {
   const Header({
@@ -91,8 +94,8 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  final String username = "John Does";
-  final String userEmail = "johndoe@example.com";
+  final String username = UserData.userM?.name ?? "";
+  final String userEmail = UserData.userM?.email ?? "";
   final String userBio = "Just another Flutter enthusiast!";
   final String currentUserID = "testUserID123";
   bool _showDashboard = false;
@@ -129,11 +132,18 @@ class _UserProfileState extends State<UserProfile> {
             Header(), // Adding the Header widget here
             SizedBox(height: 24),
             Center(
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey,
-                backgroundImage: AssetImage('assets/user_image.png'),
-              ),
+              child: UserData.userM?.imageUrl == null
+                  ? CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey,
+                      backgroundImage: AssetImage('assets/user_image.png'),
+                    )
+                  : CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          NetworkImage(UserData.userM?.imageUrl ?? ""),
+                    ),
             ),
             SizedBox(height: 20),
             Text(
@@ -177,6 +187,17 @@ class _UserProfileState extends State<UserProfile> {
                 });
               },
               child: Text('Toggle Scores View'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OnBoardView()),
+                );
+              },
+              child: Text('Logout'),
             ),
             if (_showDashboard)
               StreamBuilder<List<CompletedQuiz>>(

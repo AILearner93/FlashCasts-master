@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz/compareWordFunc.dart';
+import 'package:quiz/landing_page/auth/vm/auth_vm.dart';
 import 'package:quiz/userprofile.dart';
 import 'package:quiz/result.dart';
 import 'package:shimmer/shimmer.dart';
@@ -12,6 +13,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:text_to_speech/text_to_speech.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:async';
+import 'package:provider/provider.dart';
 
 List<QuizModel> questions = [];
 
@@ -112,6 +114,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     selectedSubject = null;
     selectedLevel = null;
     initSpeech();
+    context.read<FbAuth>().fetchUserData();
   }
 
   @override

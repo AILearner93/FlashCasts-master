@@ -1,3 +1,5 @@
+import 'package:quiz/landing_page/resources/validators.dart';
+
 import 'app_colors.dart';
 import 'app_images.dart';
 import 'app_text_styles.dart';
@@ -10,4 +12,5 @@ class R {
   static AppImages images = AppImages();
   static AppTextStyles textStyles = AppTextStyles();
   static AppDecoration decoration = AppDecoration();
+  static FieldValidator validator = FieldValidator();
 }
