@@ -22,7 +22,7 @@ class _SignInViewState extends State<SignInView> {
   TextEditingController logInEmailC = TextEditingController();
   TextEditingController logInPassC = TextEditingController();
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
-
+  bool isObsecure = true;
   @override
   Widget build(BuildContext context) {
     return Consumer<FbAuth>(builder: (context, fbAuth, _) {
@@ -140,7 +140,17 @@ class _SignInViewState extends State<SignInView> {
                                                     Icons.lock,
                                                     color: R.colors.iconColor,
                                                   ),
+                                                  suffixIcon: IconButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          isObsecure =
+                                                              !isObsecure;
+                                                        });
+                                                      },
+                                                      icon: Icon(Icons
+                                                          .remove_red_eye_outlined)),
                                                   hintText: "password"),
+                                          obscureText: isObsecure,
                                         ),
                                         SizedBox(
                                           width: size.width,

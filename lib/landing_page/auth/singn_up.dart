@@ -26,6 +26,7 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   Uint8List? image;
+  bool isObsecure = true;
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -217,7 +218,17 @@ class _SignUpState extends State<SignUp> {
                                                       Icons.lock,
                                                       color: R.colors.iconColor,
                                                     ),
+                                                    suffixIcon: IconButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            isObsecure =
+                                                                !isObsecure;
+                                                          });
+                                                        },
+                                                        icon: Icon(Icons
+                                                            .remove_red_eye_outlined)),
                                                     hintText: "password"),
+                                            obscureText: isObsecure,
                                           ),
                                           SizedBox(
                                             // width: size.width,
@@ -328,14 +339,25 @@ class _SignUpState extends State<SignUp> {
                                       child: CircularProfileAvatar("",
                                           radius: 10.w,
                                           child: image == null
-                                              ? Image.asset(R.images.profile)
+                                              ? Container(
+                                                  height: 50.sp,
+                                                  width: 50.sp,
+                                                  decoration: BoxDecoration(
+                                                      border: Border.all(),
+                                                      shape: BoxShape.circle),
+                                                  child: Icon(
+                                                    Icons.person,
+                                                    color: Colors.grey,
+                                                    size: 40,
+                                                  ),
+                                                )
                                               : Image.memory(image!)),
                                     ),
                                   ],
                                 ))
                       ],
                     ),
-                    heightBox(50.h),
+                    heightBox(32.h),
                     !isSmall
                         ? const SizedBox()
                         : Stack(
@@ -433,7 +455,16 @@ class _SignUpState extends State<SignUp> {
                                             Icons.lock,
                                             color: R.colors.iconColor,
                                           ),
+                                          suffixIcon: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  isObsecure = !isObsecure;
+                                                });
+                                              },
+                                              icon: Icon(Icons
+                                                  .remove_red_eye_outlined)),
                                           hintText: "password"),
+                                      obscureText: isObsecure,
                                     ),
                                     SizedBox(
                                       width: size.width * 0.4,
