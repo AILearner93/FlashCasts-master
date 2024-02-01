@@ -97,7 +97,7 @@ class _UserProfileState extends State<UserProfile> {
   final String username = UserData.userM?.name ?? "";
   final String userEmail = UserData.userM?.email ?? "";
   final String userBio = "Just another Flutter enthusiast!";
-  final String currentUserID = "testUserID123";
+  final String currentUserID = UserData.userM?.uid ?? "";
   bool _showDashboard = false;
 
   Stream<List<CompletedQuiz>> fetchUserCompletedQuizzesStream() {
