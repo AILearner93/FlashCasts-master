@@ -58,7 +58,7 @@ class FieldValidator {
 
   static String? validateFullName(String? value) {
     if (value!.isEmpty) return "Please enter First name";
-    if (value.length <= 2) {
+    if (value.length <= 1) {
       return "Full name is too short";
     }
     if (value.length >= 50) {
@@ -69,7 +69,7 @@ class FieldValidator {
 
   static String? validateFullName2(String? value) {
     if (value!.isEmpty) return "Please enter Last name";
-    if (value.length <= 2) {
+    if (value.length <= 1) {
       return "Full name is too short";
     }
     if (value.length >= 50) {
