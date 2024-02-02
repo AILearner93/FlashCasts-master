@@ -44,7 +44,7 @@ void main() async {
               ),
             ],
             child: GetMaterialApp(
-                title: 'Flashcast - Learn with us now!',
+                title: 'QuizCards - Learn with us now!',
                 debugShowCheckedModeBanner: false,
                 theme: ThemeData(
                   scaffoldBackgroundColor: Color(0xFFFFFFFF),
