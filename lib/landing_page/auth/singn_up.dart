@@ -17,7 +17,6 @@ import '../resources/resources.dart';
 import '../resources/validators.dart';
 import '../utils/sized_box.dart';
 
-
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
 
@@ -26,7 +25,6 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  
   Uint8List? image;
   bool isObsecure = true;
   Future<void> _pickImage() async {
@@ -40,7 +38,6 @@ class _SignUpState extends State<SignUp> {
       });
     }
   }
-  
 
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   TextEditingController signUpNameCon = TextEditingController();
@@ -50,7 +47,6 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Consumer<FbAuth>(builder: (context, fbAuth, _) {
       return ResponsiveBuilder(builder: (context, sizes) {
         var isLarge = sizes.isLarge;
@@ -158,7 +154,7 @@ class _SignUpState extends State<SignUp> {
                                                                 .iconColor,
                                                           ),
                                                           hintText:
-                                                              "first Name"),
+                                                              "First Name"),
                                                 ),
                                               ),
                                               SizedBox(
@@ -204,7 +200,7 @@ class _SignUpState extends State<SignUp> {
                                                       Icons.mail,
                                                       color: R.colors.iconColor,
                                                     ),
-                                                    hintText: "Email address"),
+                                                    hintText: "Email Address"),
                                           ),
                                           TextFormField(
                                             validator:
@@ -231,7 +227,7 @@ class _SignUpState extends State<SignUp> {
                                                         },
                                                         icon: Icon(Icons
                                                             .remove_red_eye_outlined)),
-                                                    hintText: "password"),
+                                                    hintText: "Password"),
                                             obscureText: isObsecure,
                                           ),
                                           SizedBox(
@@ -410,7 +406,7 @@ class _SignUpState extends State<SignUp> {
                                                           .account_circle_sharp,
                                                       color: R.colors.iconColor,
                                                     ),
-                                                    hintText: "first Name"),
+                                                    hintText: "First Name"),
                                           ),
                                         ),
                                         SizedBox(
@@ -467,7 +463,7 @@ class _SignUpState extends State<SignUp> {
                                               },
                                               icon: Icon(Icons
                                                   .remove_red_eye_outlined)),
-                                          hintText: "password"),
+                                          hintText: "Password"),
                                       obscureText: isObsecure,
                                     ),
                                     SizedBox(
