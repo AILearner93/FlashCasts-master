@@ -11,7 +11,7 @@ import '../../base_view/base_screen.dart';
 
 class FbAuth extends ChangeNotifier {
   bool isLoading = false;
-
+  late UserM userModel;
   //firebase instance
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 // firebase auth function
@@ -73,17 +73,24 @@ class FbAuth extends ChangeNotifier {
     } finally {}
   }
 
-  fetchUserData() async {
+  Future fetchUserData() async {
     try {
       var currentUser = _firebaseAuth.currentUser?.uid;
-
       var userDoc = await FBCollections.users.doc(currentUser).get();
-
       if (userDoc.exists) {
-        UserData.userM = UserM.fromJson(userDoc.data() as Map<String, dynamic>);
+        final UserM model= UserM.fromJson(userDoc.data() as Map<String, dynamic>);
+        model.uid=currentUser;
+        userModel= model;
+        notifyListeners();
+      }else{
+        print("User is Null");
+        // userModel=null;
+        notifyListeners();
+        return ;
       }
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
+      return null;
     } finally {}
   }
 

@@ -34,25 +34,32 @@ class QuizDashboard extends StatelessWidget {
               final percentageScore =
                   decimalToPercentage(quiz.score / quiz.totalQuestions);
 
-              return Card(
-                elevation: 2,
+              return Padding(
+                padding: const EdgeInsets.only(top:10.0),
                 child: Container(
-                  height: MediaQuery.of(context).size.height * 0.2,
-                  child: ListTile(
-                    title: Text(
-                      quiz.quizName,
-                      textAlign: TextAlign.center,
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
+                  // height: 100,
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 243, 224, 246),
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          quiz.quizName,
+                          textAlign: TextAlign.center,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Total Questions: ${quiz.totalQuestions}',
+                                Text(
+                                    'Total Questions: ${quiz.totalQuestions}',
                                     style: TextStyle(
                                       fontSize: textSize,
                                     )),
@@ -70,13 +77,9 @@ class QuizDashboard extends StatelessWidget {
                                     ))
                               ],
                             ),
-                          ),
-                          Expanded(
-                            flex: 4,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
+                            SizedBox(
+                                  height: 100,
+                                  width: 100,
                                   child: PieChart(
                                     PieChartData(
                                       sections: [
@@ -96,36 +99,35 @@ class QuizDashboard extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(25.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Score',
-                                        style: TextStyle(
-                                          fontSize: textSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xff02c39a),
-                                        ),
-                                      ),
-                                      Text(
-                                        "$percentageScore",
-                                        style: TextStyle(
-                                          fontSize: textSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xfff8b250),
-                                        ),
-                                      ),
-                                    ],
+                               
+                            Padding(
+                              padding: const EdgeInsets.all(25.0),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Score',
+                                    style: TextStyle(
+                                      fontSize: textSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xff02c39a),
+                                    ),
                                   ),
-                                )
-                              ],
+                                  Text(
+                                    "$percentageScore",
+                                    style: TextStyle(
+                                      fontSize: textSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xfff8b250),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),

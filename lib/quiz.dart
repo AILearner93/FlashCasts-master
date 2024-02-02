@@ -37,9 +37,10 @@ String lastWords = '';
 String localeId = '';
 String? selectedChoice;
 //replaceAll(' ', '').
-
-String currentUserID = "testUserID123";
-String currentUserName = "testUser";
+// final String currentUserID = UserData.userM?.uid??"";
+// final String currentUserName = UserData.userM?.name ?? "";
+// String currentUserID = "testUserID123";
+// String currentUserName = "testUser";
 
 class Quiz extends StatefulWidget {
   const Quiz({Key? key}) : super(key: key);
@@ -87,6 +88,10 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   late FlutterTts flutterTts;
 //define the completed as a member variable
   Completer<void> _ttsCompleter = Completer<void>();
+
+  bool isMainLoading=false;
+  bool isLevelLoading=false;
+  bool isSubjectLoading=false;
 
   @override
   void reassemble() {
@@ -333,6 +338,10 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   StreamSubscription? mainSubjectSubscription;
 
   void getMainSubject() async {
+    setState(() {
+    isMainLoading=true;
+
+    });
     Map<String, Filter> mainSubjectsMap = {}; // Declare a Map here
 
     // Fetching from mainSubject collection
@@ -353,7 +362,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
     mainSubjects = mainSubjectsMap.values
         .toList(); // Convert the Map values to a List here
-    setState(() {});
+    setState(() {
+      isMainLoading=false;
+    });
   }
 
   @override
@@ -370,11 +381,12 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   Future<void> storeQuizResults(int score, int totalQuestions) async {
     try {
+      final authProvider = Provider.of<FbAuth>(context, listen: false);
       CollectionReference userScores =
           FirebaseFirestore.instance.collection('userScores');
 
       // Assuming you have a variable called currentUserID for the logged-in user
-      DocumentReference userDocRef = userScores.doc(currentUserID);
+      DocumentReference userDocRef = userScores.doc(authProvider.userModel.uid);
 
       // Check if user document exists
       DocumentSnapshot userDocSnap = await userDocRef.get();
@@ -382,8 +394,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       if (!userDocSnap.exists) {
         // If user document doesn't exist, create one with basic user data
         await userDocRef.set({
-          'userID': currentUserID,
-          'userName': currentUserName, // Assuming you have this variable
+          'userID': authProvider.userModel.uid,
+          'userName':
+              authProvider.userModel.name, // Assuming you have this variable
         });
       }
 
@@ -402,6 +415,10 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
   }
 
   void getLevel() async {
+    setState(() {
+    isLevelLoading=true;
+      
+    });
     Map<String, Filter> levelsMap = {}; // Declare a Map here
 
     // Ensure that selectedMainSubject is not null before proceeding
@@ -429,11 +446,16 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
       levels =
           levelsMap.values.toList(); // Convert the Map values to a List here
-      setState(() {});
+      setState(() {
+        isLevelLoading=false;
+      });
     }
   }
 
   void getSubject() async {
+    setState(() {
+      isSubjectLoading=true;
+    });
     Map<String, Filter> subjectsMap = {}; // Declare a Map here
 
     // Ensure that selectedMainSubject and selectedLevel are not null before proceeding
@@ -464,7 +486,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
       subjects =
           subjectsMap.values.toList(); // Convert the Map values to a List here
-      setState(() {});
+      setState(() {
+        isSubjectLoading=false;
+      });
     }
   }
 
@@ -540,7 +564,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                 color: Colors.grey),
                           ),
                           SizedBox(height: 16),
-                          Wrap(
+                          isMainLoading?Center(child: CircularProgressIndicator()) :Wrap(
                             //this the wrap for teh questions on the left in the level
                             runSpacing: 8,
                             spacing: 8,
@@ -558,6 +582,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                   selectedMainSubject = e;
                                   selectedSubject = null;
                                   selectedLevel = null;
+                                  
                                   setState(() {});
                                   getLevel();
                                 },
@@ -582,7 +607,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               : SizedBox(height: 16),
                           selectedMainSubject == null
                               ? SizedBox()
-                              : Wrap(
+                              :  isLevelLoading?Center(child: CircularProgressIndicator()): Wrap(
                                   //this is the wrap for the subjects
                                   runSpacing: 8,
                                   spacing: 8,
@@ -625,7 +650,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               : SizedBox(height: 16),
                           selectedLevel == null
                               ? SizedBox()
-                              : Wrap(
+                              : isSubjectLoading?Center(child: CircularProgressIndicator()): Wrap(
                                   //wrap for get questiosn
                                   runSpacing: 8,
                                   spacing: 8,
