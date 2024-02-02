@@ -89,9 +89,9 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 //define the completed as a member variable
   Completer<void> _ttsCompleter = Completer<void>();
 
-  bool isMainLoading=false;
-  bool isLevelLoading=false;
-  bool isSubjectLoading=false;
+  bool isMainLoading = false;
+  bool isLevelLoading = false;
+  bool isSubjectLoading = false;
 
   @override
   void reassemble() {
@@ -339,8 +339,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   void getMainSubject() async {
     setState(() {
-    isMainLoading=true;
-
+      isMainLoading = true;
     });
     Map<String, Filter> mainSubjectsMap = {}; // Declare a Map here
 
@@ -363,7 +362,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
     mainSubjects = mainSubjectsMap.values
         .toList(); // Convert the Map values to a List here
     setState(() {
-      isMainLoading=false;
+      isMainLoading = false;
     });
   }
 
@@ -416,8 +415,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
 
   void getLevel() async {
     setState(() {
-    isLevelLoading=true;
-      
+      isLevelLoading = true;
     });
     Map<String, Filter> levelsMap = {}; // Declare a Map here
 
@@ -447,14 +445,14 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       levels =
           levelsMap.values.toList(); // Convert the Map values to a List here
       setState(() {
-        isLevelLoading=false;
+        isLevelLoading = false;
       });
     }
   }
 
   void getSubject() async {
     setState(() {
-      isSubjectLoading=true;
+      isSubjectLoading = true;
     });
     Map<String, Filter> subjectsMap = {}; // Declare a Map here
 
@@ -487,7 +485,7 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
       subjects =
           subjectsMap.values.toList(); // Convert the Map values to a List here
       setState(() {
-        isSubjectLoading=false;
+        isSubjectLoading = false;
       });
     }
   }
@@ -564,32 +562,36 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                                 color: Colors.grey),
                           ),
                           SizedBox(height: 16),
-                          isMainLoading?Center(child: CircularProgressIndicator()) :Wrap(
-                            //this the wrap for teh questions on the left in the level
-                            runSpacing: 8,
-                            spacing: 8,
-                            children: mainSubjects.map((e) {
-                              return ChoiceChip(
-                                backgroundColor: Colors.grey.withOpacity(.15),
-                                selectedColor: Theme.of(context).primaryColor,
-                                labelStyle: TextStyle(
-                                  color: selectedMainSubject == e
-                                      ? Colors.white
-                                      : Colors.black,
+                          isMainLoading
+                              ? Center(child: CircularProgressIndicator())
+                              : Wrap(
+                                  //this the wrap for teh questions on the left in the level
+                                  runSpacing: 8,
+                                  spacing: 8,
+                                  children: mainSubjects.map((e) {
+                                    return ChoiceChip(
+                                      backgroundColor:
+                                          Colors.grey.withOpacity(.15),
+                                      selectedColor:
+                                          Theme.of(context).primaryColor,
+                                      labelStyle: TextStyle(
+                                        color: selectedMainSubject == e
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                      selected: selectedMainSubject == e,
+                                      onSelected: (v) {
+                                        selectedMainSubject = e;
+                                        selectedSubject = null;
+                                        selectedLevel = null;
+
+                                        setState(() {});
+                                        getLevel();
+                                      },
+                                      label: Text(e.title),
+                                    );
+                                  }).toList(),
                                 ),
-                                selected: selectedMainSubject == e,
-                                onSelected: (v) {
-                                  selectedMainSubject = e;
-                                  selectedSubject = null;
-                                  selectedLevel = null;
-                                  
-                                  setState(() {});
-                                  getLevel();
-                                },
-                                label: Text(e.title),
-                              );
-                            }).toList(),
-                          ),
                           selectedMainSubject == null
                               ? SizedBox()
                               : SizedBox(height: 24),
@@ -607,32 +609,34 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               : SizedBox(height: 16),
                           selectedMainSubject == null
                               ? SizedBox()
-                              :  isLevelLoading?Center(child: CircularProgressIndicator()): Wrap(
-                                  //this is the wrap for the subjects
-                                  runSpacing: 8,
-                                  spacing: 8,
-                                  children: levels.map((e) {
-                                    return ChoiceChip(
-                                      backgroundColor:
-                                          Colors.grey.withOpacity(.15),
-                                      selectedColor:
-                                          Theme.of(context).primaryColor,
-                                      labelStyle: TextStyle(
-                                        color: selectedLevel == e
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                      selected: selectedLevel == e,
-                                      onSelected: (v) {
-                                        selectedLevel = e;
-                                        selectedSubject = null;
-                                        setState(() {});
-                                        getSubject();
-                                      },
-                                      label: Text(e.title),
-                                    );
-                                  }).toList(),
-                                ),
+                              : isLevelLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : Wrap(
+                                      //this is the wrap for the subjects
+                                      runSpacing: 8,
+                                      spacing: 8,
+                                      children: levels.map((e) {
+                                        return ChoiceChip(
+                                          backgroundColor:
+                                              Colors.grey.withOpacity(.15),
+                                          selectedColor:
+                                              Theme.of(context).primaryColor,
+                                          labelStyle: TextStyle(
+                                            color: selectedLevel == e
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          selected: selectedLevel == e,
+                                          onSelected: (v) {
+                                            selectedLevel = e;
+                                            selectedSubject = null;
+                                            setState(() {});
+                                            getSubject();
+                                          },
+                                          label: Text(e.title),
+                                        );
+                                      }).toList(),
+                                    ),
                           selectedLevel == null
                               ? SizedBox()
                               : SizedBox(height: 24),
@@ -650,30 +654,32 @@ class _QuizState extends State<Quiz> with TickerProviderStateMixin {
                               : SizedBox(height: 16),
                           selectedLevel == null
                               ? SizedBox()
-                              : isSubjectLoading?Center(child: CircularProgressIndicator()): Wrap(
-                                  //wrap for get questiosn
-                                  runSpacing: 8,
-                                  spacing: 8,
-                                  children: subjects.map((e) {
-                                    return ChoiceChip(
-                                      backgroundColor:
-                                          Colors.grey.withOpacity(.15),
-                                      selectedColor:
-                                          Theme.of(context).primaryColor,
-                                      labelStyle: TextStyle(
-                                        color: selectedSubject == e
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                      selected: selectedSubject == e,
-                                      onSelected: (v) {
-                                        selectedSubject = e;
-                                        setState(() {});
-                                      },
-                                      label: Text(e.title),
-                                    );
-                                  }).toList(),
-                                ),
+                              : isSubjectLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : Wrap(
+                                      //wrap for get questiosn
+                                      runSpacing: 8,
+                                      spacing: 8,
+                                      children: subjects.map((e) {
+                                        return ChoiceChip(
+                                          backgroundColor:
+                                              Colors.grey.withOpacity(.15),
+                                          selectedColor:
+                                              Theme.of(context).primaryColor,
+                                          labelStyle: TextStyle(
+                                            color: selectedSubject == e
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          selected: selectedSubject == e,
+                                          onSelected: (v) {
+                                            selectedSubject = e;
+                                            setState(() {});
+                                          },
+                                          label: Text(e.title),
+                                        );
+                                      }).toList(),
+                                    ),
                           selectedSubject == null
                               ? SizedBox()
                               : SizedBox(height: 24),
@@ -1032,7 +1038,7 @@ class Header extends StatelessWidget {
         ),
         SizedBox(width: 24),
         Text(
-          'Flashcast',
+          'QuizCards',
           style: TextStyle(
               fontSize: 20, color: Colors.black87, fontWeight: FontWeight.bold),
         ),
